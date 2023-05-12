@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/Gabriel/Desktop/Programação/fornecedora",
-      "program": "/Users/Gabriel/Desktop/Programação/fornecedora/build/Debug/outDebug"
+      "cwd": "/Users/gabrielzagury/Desktop/Programação/fornecedora",
+      "program": "/Users/gabrielzagury/Desktop/Programação/fornecedora/build/Debug/outDebug"
     }
   ]
 }

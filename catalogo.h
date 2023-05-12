@@ -25,10 +25,9 @@ typedef struct catalogo
 /**
  * @brief Cria um novo catálogo
  *
- * @param nome Nome do catálogo
  * @return Catalogo* Ponteiro para o catálogo criado
  */
-Catalogo *criaCatalogo(char *nome);
+Catalogo *criaCatalogo(void);
 
 /**
  * @brief Insere um novo jogo no catálogo
@@ -38,3 +37,44 @@ Catalogo *criaCatalogo(char *nome);
  * @param data Data de lançamento do jogo
  * @return Catalogo* Ponteiro para o catálogo
  */
+Catalogo *insereJogoCatalogo(Catalogo *catalogo, char *nome, Data data);
+
+/**
+ * @brief Imprime o catálogo
+ *
+ * @param catalogo Ponteiro para o catálogo
+ */
+void imprimeCatalogo(Catalogo *catalogo);
+
+/**
+ * @brief Libera a memória alocada pelo catálogo
+ *
+ * @param catalogo Ponteiro para o catálogo
+ */
+void liberaCatalogo(Catalogo *catalogo);
+
+/**
+ * @brief Busca um jogo no catálogo
+ *
+ * @param catalogo Ponteiro para o catálogo
+ * @param nome Nome do jogo
+ * @return Catalogo* Ponteiro para o jogo encontrado
+ */
+Catalogo *buscaJogoCatalogo(Catalogo *catalogo, char *nome);
+
+/**
+ * @brief Remove um jogo do catálogo
+ *
+ * @param catalogo Ponteiro para o catálogo
+ * @param nome Nome do jogo
+ * @return Catalogo* Ponteiro para o catálogo
+ */
+Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome);
+
+/**
+ * @brief Retorna o tamanho do catálogo
+ *
+ * @param catalogo Ponteiro para o catálogo
+ * @return int Tamanho do catálogo
+ */
+int tamanhoCatalogo(Catalogo *catalogo);
