@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../catalogo.h"
+#include "munit-master/munit.h"
 
 int main(void)
 {

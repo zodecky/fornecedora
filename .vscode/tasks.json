@@ -9,6 +9,7 @@
                 "-g",
                 "${file}",
                 "../catalogo.c",
+                "/muint-master/muint.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

@@ -9,8 +9,10 @@
  *
  * A função retorna NULL, para que ao inserir um jogo
  * ele aponte para um ponteiro nulo do "tipo" catálogo.
- *
+ *muuint
  * @return Catalogo*
+ *
+ * Caso 1: retorna null
  */
 Catalogo *criaCatalogo(void)
 {
@@ -137,6 +139,12 @@ Catalogo *buscaJogoCatalogo(Catalogo *catalogo, char *nome)
  * 6: libera a memória alocada para o nome e para o catálogo.
  * 7: retorna o catálogo.
  *
+ *
+ * Caso 1: o jogo não foi encontrado, retorna o catálogo -> não removeu nada.
+ * Caso 2: o jogo foi encontrado e é o primeiro -> remove o primeiro jogo.
+ * Caso 3: o jogo foi encontrado e não é o primeiro -> remove o jogo.
+ * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
+ *
  */
 Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
 {
@@ -147,15 +155,15 @@ Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
         ant = aux;
         aux = aux->prox;
     }
-    if (aux == NULL)
+    if (aux == NULL) // não encontrou o jogo
     {
         return catalogo;
     }
-    if (ant == NULL)
+    if (ant == NULL) // é o primeiro jogo do catálogo
     {
         catalogo = aux->prox;
     }
-    else
+    else // não é o primeiro jogo do catálogo
     {
         ant->prox = aux->prox;
     }
