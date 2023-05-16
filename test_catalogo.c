@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "catalogo.h"
 #include "munit.h"
 
@@ -16,15 +17,7 @@ int main(void)
     catalogo->data_lancamento = (Data){1, 1, 2200};
     catalogo->prox = NULL;
 
-    munit_assert_ptr(catalogo, =, catalogo);
-
-    imprimeCatalogo(catalogo);
-
-    catalogo = removeJogoCatalogo(catalogo, "Jogo 3");
-
-    imprimeCatalogo(catalogo);
-
-    liberaCatalogo(catalogo);
+    munit_assert_memory_equal(sizeof(Catalogo), catalogo, test);
 
     return 0;
 }

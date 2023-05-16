@@ -36,6 +36,55 @@ Catalogo *criaCatalogo(void)
  */
 Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
 {
+    // checa formato da data
+    if (data.dia < 1 || data.dia > 31)
+    {
+        printf("Um dia deve estar entre 1 e 31!\n");
+        return catalogo_antigo;
+    }
+    if (data.mes < 1 || data.mes > 12)
+    {
+        printf("Um mes deve estar entre 1 e 12!\n");
+        return catalogo_antigo;
+    }
+    if (data.ano < 1)
+    {
+        printf("Um ano deve ser maior que 0!\n");
+        return catalogo_antigo;
+    }
+
+    if (data.mes == 2 && data.dia > 29)
+    {
+        printf("Fevereiro tem 28 dias, exceto em anos bissextos, que tem 29\n");
+        return catalogo_antigo;
+    }
+    else if ((data.mes == 4 || data.mes == 6 || data.mes == 9 || data.mes == 11) && data.dia > 30)
+    {
+        printf("Os meses 4, 6, 9 e 11 nao possuem dia 31!\n");
+        return catalogo_antigo;
+    }
+
+    if (data.ano % 4 != 0 && data.mes == 2 && data.dia > 28)
+    {
+        // print explica o erro
+        printf("O dia 28 de fevereiro somente existe em anos bissextos\n");
+        return catalogo_antigo;
+    }
+
+    // check numero de digitos do ano
+    int ano = data.ano;
+    int digitos = 0;
+    while (ano != 0)
+    {
+        ano /= 10;
+        digitos++;
+    }
+    if (digitos != 4)
+    {
+        printf("Um ano deve possuir quatro digitos!\n");
+        return catalogo_antigo;
+    }
+
     Catalogo *catalogo = (Catalogo *)malloc(sizeof(Catalogo));          // aloca memória para o catálogo
     catalogo->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
     strcpy(catalogo->nome, nome);                                       // copia o nome para o catálogo

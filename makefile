@@ -20,6 +20,6 @@ $(PROG): $(OBJ) $(OMKALL)
 clean:
 	rm -f $(OBJ) $(PROG)
 
-note: $(PROG)
+testcatalogo: $(PROG)
 $(PROG): $(OBJ) $(OMKTEST)
 	$(CC) $(OBJ) $(OMKTEST) -o $(PROG) $(LIBS)
