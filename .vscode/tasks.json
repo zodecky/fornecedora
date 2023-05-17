@@ -9,6 +9,7 @@
                 "-g",
                 "${file}",
                 "catalogo.c",
+                "munit.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

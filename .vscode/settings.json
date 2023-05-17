@@ -36,6 +36,8 @@
   "C_Cpp_Runner.useAddressSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "files.associations": {
-    "catalogo.h": "c"
+    "catalogo.h": "c",
+    "stdlib.h": "c",
+    "munit.h": "c"
   }
 }
