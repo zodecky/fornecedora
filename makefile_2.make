@@ -9,9 +9,10 @@ OMKALL = $(MKALL:.c=.o)
 OMKTEST = $(MKTEST:.c=.o)
 PROG = myprogram
 
-all: $(PROG)
-
+$(PROGTEST): $(OBJ) $(OMKTEST)
 $(PROG): $(OBJ) $(OMKALL)
+
+all: $(PROG)
 	$(CC) $(OBJ) $(OMKALL) -o $(PROG) $(LIBS)
 
 %.o: %.c
@@ -20,6 +21,5 @@ $(PROG): $(OBJ) $(OMKALL)
 clean:
 	rm -f $(OBJ) $(PROG)
 
-testcatalogo: $(PROG)
-$(PROG): $(OBJ) $(OMKTEST)
+testcatalogo: $(PROGTEST)
 	$(CC) $(OBJ) $(OMKTEST) -o $(PROG) $(LIBS)

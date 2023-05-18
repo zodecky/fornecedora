@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <cJSON.h>
+#include <../lib/cJSON/cJSON.h>
 
 /* Modulos */
 #include "estoque.h"
@@ -12,5 +12,6 @@
 
 int main(void)
 {
+    printf("Hello World!\n");
     return 0;
 }
