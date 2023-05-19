@@ -4,11 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <../lib/cJSON/cJSON.h>
-
 /* Modulos */
-#include "estoque.h"
-#include "catalogo.h"
+#include "../include/estoque.h"
+#include "../include/catalogo.h"
 
 int main(void)
 {
