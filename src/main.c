@@ -46,7 +46,7 @@ bool salva_no_db(sqlite3 *db, Catalogo *catalogo)
 
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "Erro ao preparar o statement: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Erro na funcao prepare do banco de dados: %s\n", sqlite3_errmsg(db));
         return false;
     }
 
@@ -60,7 +60,7 @@ bool salva_no_db(sqlite3 *db, Catalogo *catalogo)
         rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE)
         {
-            fprintf(stderr, "Erro ao executar o statement: %s\n", sqlite3_errmsg(db));
+            fprintf(stderr, "Erro na insercao no banco de dados: %s\n", sqlite3_errmsg(db));
             return false;
         }
 
