@@ -90,6 +90,8 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
     strcpy(catalogo->nome, nome);                                       // copia o nome para o catálogo
     catalogo->data_lancamento = data;                                   // copia a data para o catálogo
     catalogo->prox = catalogo_antigo;                                   // o próximo é o catalogo anterior
+
+    printf("Jogo inserido com sucesso!\n");
     return catalogo;
 }
 

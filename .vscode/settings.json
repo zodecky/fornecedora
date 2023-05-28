@@ -38,6 +38,7 @@
   "files.associations": {
     "catalogo.h": "c",
     "stdlib.h": "c",
-    "munit.h": "c"
+    "munit.h": "c",
+    "sqlite3.h": "c"
   }
 }
