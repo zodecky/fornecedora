@@ -130,6 +130,14 @@ bool limpa_db(sqlite3 *db)
     return true;
 }
 
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN "\x1b[36m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+
 int main()
 {
     /* INICIALIZAR DB */
@@ -155,7 +163,7 @@ int main()
 
     while (1)
     {
-        printf("Digite um comando (insere, busca, remove, imprime, tamanho, sair, limpa (bd), salva, carrega)): ");
+        printf(ANSI_COLOR_CYAN "Digite um comando (insere, busca, remove, imprime, tamanho, sair, limpa (bd), salva, carrega)): " ANSI_COLOR_RESET);
         scanf(" %[^\n]", comando);
 
         if (strcmp(comando, "insere") == 0)
@@ -163,41 +171,42 @@ int main()
             char nome[50];
             int dia, mes, ano;
 
-            printf("Digite o nome do jogo: ");
+            printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            printf("Digite a data de lancamento (DD MM AAAA): ");
+            printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
             scanf("%d %d %d", &dia, &mes, &ano);
 
             Data data = {dia, mes, ano};
             catalogo = insereJogoCatalogo(catalogo, nome, data);
+            printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
         }
         else if (strcmp(comando, "busca") == 0)
         {
             char nome[50];
 
-            printf("Digite o nome do jogo: ");
+            printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
             Catalogo *jogo = buscaJogoCatalogo(catalogo, nome);
             if (jogo == NULL)
             {
-                printf("Jogo nao encontrado!\n");
+                printf(ANSI_COLOR_RED "Jogo nao encontrado!\n" ANSI_COLOR_RESET);
             }
             else
             {
-                printf("Jogo encontrado: %s\n", jogo->nome);
+                printf(ANSI_COLOR_GREEN "Jogo encontrado: %s\n" ANSI_COLOR_RESET, jogo->nome);
             }
         }
         else if (strcmp(comando, "remove") == 0)
         {
             char nome[50];
 
-            printf("Digite o nome do jogo: ");
+            printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
             catalogo = removeJogoCatalogo(catalogo, nome);
-            printf("Jogo removido com sucesso!\n");
+            printf(ANSI_COLOR_GREEN "Jogo removido com sucesso!\n" ANSI_COLOR_RESET);
         }
         else if (strcmp(comando, "imprime") == 0)
         {
@@ -206,17 +215,17 @@ int main()
         else if (strcmp(comando, "tamanho") == 0)
         {
             int tamanho = tamanhoCatalogo(catalogo);
-            printf("Tamanho do catalogo: %d\n", tamanho);
+            printf(ANSI_COLOR_GREEN "Tamanho do catalogo: %d\n" ANSI_COLOR_RESET, tamanho);
         }
         else if (strcmp(comando, "salva") == 0)
         {
             if (!salva_no_db(db, catalogo))
             {
-                fprintf(stderr, "Erro ao salvar no banco de dados!\n");
+                fprintf(stderr, ANSI_COLOR_RED "Erro ao salvar no banco de dados!\n" ANSI_COLOR_RESET);
             }
             else
             {
-                printf("Catalogo salvo com sucesso!\n");
+                printf(ANSI_COLOR_GREEN "Catalogo salvo com sucesso!\n" ANSI_COLOR_RESET);
             }
         }
         else if (strcmp(comando, "carrega") == 0)
@@ -224,22 +233,22 @@ int main()
             catalogo = carrega_do_db(db, catalogo);
             if (catalogo == NULL)
             {
-                fprintf(stderr, "Erro ao carregar do banco de dados!\n");
+                fprintf(stderr, ANSI_COLOR_RED "Erro ao carregar do banco de dados!\n" ANSI_COLOR_RESET);
             }
             else
             {
-                printf("Catalogo carregado com sucesso!\n");
+                printf(ANSI_COLOR_GREEN "Catalogo carregado com sucesso!\n" ANSI_COLOR_RESET);
             }
         }
         else if (strcmp(comando, "limpa") == 0)
         {
             if (!limpa_db(db))
             {
-                fprintf(stderr, "Erro ao limpar o banco de dados!\n");
+                fprintf(stderr, ANSI_COLOR_RED "Erro ao limpar o banco de dados!\n" ANSI_COLOR_RESET);
             }
             else
             {
-                printf("Catalogo limpo com sucesso!\n");
+                printf(ANSI_COLOR_GREEN "Catalogo limpo com sucesso!\n" ANSI_COLOR_RESET);
             }
         }
         else if (strcmp(comando, "sair") == 0)
@@ -248,7 +257,7 @@ int main()
         }
         else
         {
-            printf("Comando invalido!\n");
+            printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
         }
     }
 

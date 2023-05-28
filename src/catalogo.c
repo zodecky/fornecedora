@@ -116,13 +116,20 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
 void imprimeCatalogo(Catalogo *catalogo)
 {
     Catalogo *aux = catalogo;
-    printf("******** Imrpimindo o catalogo *******\n\n");
+    if (aux == NULL)
+    {
+        printf("\x1b[31mO catalogo esta vazio!\n\x1b[0m");
+        return;
+    }
+
+    printf("\x1b[32m******** Imrpimindo o catalogo *******\n\n\x1b[0m");
     while (aux != NULL)
     {
-        printf("Nome: %s\n", aux->nome);
-        printf("Lancamento: %d/%d/%d\n\n", aux->data_lancamento.dia, aux->data_lancamento.mes, aux->data_lancamento.ano);
+        printf("\x1b[34mNome: %s\n\x1b[0m", aux->nome);
+        printf("\x1b[34mLancamento: %d/%d/%d\n\n\x1b[0m", aux->data_lancamento.dia, aux->data_lancamento.mes, aux->data_lancamento.ano);
         aux = aux->prox;
     }
+    printf("\x1b[32m******** Fim da impressao *******\n\n\x1b[0m");
 }
 
 /**
