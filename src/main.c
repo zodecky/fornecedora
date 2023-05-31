@@ -102,7 +102,7 @@ Catalogo *carrega_do_db(sqlite3 *db, Catalogo *catalogo)
         int mes = sqlite3_column_int(stmt, 2);
         int ano = sqlite3_column_int(stmt, 3);
 
-        printf("%s %d %d %d\n", nome, dia, mes, ano);
+        // printf("%s %d %d %d\n", nome, dia, mes, ano);
 
         Data data = {dia, mes, ano};
         catalogo = insereJogoCatalogo(catalogo, nome, data);
@@ -179,7 +179,6 @@ int main()
 
             Data data = {dia, mes, ano};
             catalogo = insereJogoCatalogo(catalogo, nome, data);
-            printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
         }
         else if (strcmp(comando, "busca") == 0)
         {
@@ -196,6 +195,7 @@ int main()
             else
             {
                 printf(ANSI_COLOR_GREEN "Jogo encontrado: %s\n" ANSI_COLOR_RESET, jogo->nome);
+                printf(ANSI_COLOR_GREEN "Data de lancamento: %d/%d/%d\n" ANSI_COLOR_RESET, jogo->data_lancamento.dia, jogo->data_lancamento.mes, jogo->data_lancamento.ano);
             }
         }
         else if (strcmp(comando, "remove") == 0)
@@ -215,7 +215,7 @@ int main()
         else if (strcmp(comando, "tamanho") == 0)
         {
             int tamanho = tamanhoCatalogo(catalogo);
-            printf(ANSI_COLOR_GREEN "Tamanho do catalogo: %d\n" ANSI_COLOR_RESET, tamanho);
+            printf(ANSI_COLOR_GREEN "Numero de jogos no catalogo: %d\n" ANSI_COLOR_RESET, tamanho);
         }
         else if (strcmp(comando, "salva") == 0)
         {
@@ -225,7 +225,7 @@ int main()
             }
             else
             {
-                printf(ANSI_COLOR_GREEN "Catalogo salvo com sucesso!\n" ANSI_COLOR_RESET);
+                printf("\033[1;32mCatalogo salvo com sucesso!\n" ANSI_COLOR_RESET);
             }
         }
         else if (strcmp(comando, "carrega") == 0)

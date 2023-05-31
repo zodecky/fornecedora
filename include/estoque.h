@@ -5,9 +5,9 @@
  */
 typedef struct estoque
 {
+    struct estoque *prox;
     char *nome;
     int quantidade;
-    struct estoque *prox;
 } Estoque;
 
 /**
@@ -28,7 +28,7 @@ Estoque *criaEstoque(char *nome, int quantidade);
  * @param quantidade
  * @return Estoque*
  */
-Estoque *insereJogoEstoque(Estoque *estoque, char *nome, int quantidade);
+Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome, int quantidade);
 
 /**
  * @brief Imprime o estoque
@@ -72,7 +72,7 @@ Estoque *removeJogoEstoque(Estoque *estoque, char *nome);
 Estoque *vendeJogoEstoque(Estoque *estoque, char *nome);
 
 /**
- * @brief Compra um jogo do estoque
+ * @brief Compra um jogo para o estoque
  *
  * @param estoque
  * @param nome

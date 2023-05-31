@@ -39,35 +39,35 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
     // checa formato da data
     if (data.dia < 1 || data.dia > 31)
     {
-        printf("Um dia deve estar entre 1 e 31!\n");
+        printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
         return catalogo_antigo;
     }
     if (data.mes < 1 || data.mes > 12)
     {
-        printf("Um mes deve estar entre 1 e 12!\n");
+        printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
         return catalogo_antigo;
     }
     if (data.ano < 1)
     {
-        printf("Um ano deve ser maior que 0!\n");
+        printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
         return catalogo_antigo;
     }
 
     if (data.mes == 2 && data.dia > 29)
     {
-        printf("Fevereiro tem 28 dias, exceto em anos bissextos, que tem 29\n");
+        printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
         return catalogo_antigo;
     }
     else if ((data.mes == 4 || data.mes == 6 || data.mes == 9 || data.mes == 11) && data.dia > 30)
     {
-        printf("Os meses 4, 6, 9 e 11 nao possuem dia 31!\n");
+        printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
         return catalogo_antigo;
     }
 
     if (data.ano % 4 != 0 && data.mes == 2 && data.dia > 28)
     {
         // print explica o erro
-        printf("O dia 28 de fevereiro somente existe em anos bissextos\n");
+        printf("\033[31mO dia 28 de fevereiro somente existe em anos bissextos\033[0m\n");
         return catalogo_antigo;
     }
 
@@ -81,7 +81,7 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
     }
     if (digitos != 4)
     {
-        printf("Um ano deve possuir quatro digitos!\n");
+        printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
         return catalogo_antigo;
     }
 
@@ -91,7 +91,7 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, Data data)
     catalogo->data_lancamento = data;                                   // copia a data para o catálogo
     catalogo->prox = catalogo_antigo;                                   // o próximo é o catalogo anterior
 
-    printf("Jogo inserido com sucesso!\n");
+    printf("\033[32mJogo inserido com sucesso!\033[0m\n");
     return catalogo;
 }
 
