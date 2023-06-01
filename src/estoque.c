@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 /**
@@ -30,7 +31,7 @@ Estoque *criaEstoque(void)
  * depois aloca memória para o nome do jogo
  * e copia o nome passado como parâmetro para o nome do jogo.
  * Também adiciona a data de a quantidade de jogos.
- * 
+ *
  * TODO: inserir com quantidade 10
  * TODO: nao deixar inserir quando já estiver no estoque
  * imprimir erro mandando usar a função compra
@@ -40,17 +41,17 @@ Estoque *criaEstoque(void)
  */
 Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome)
 {
-    if (quantitade < 1)
-    {
-        printf("\033[31mA quantidade mínima deve ser 1!\033[0m]");
-        return estoque_antigo;
-    }
-// TODO: talvez checar se jogo já existe no estoque
+    // TODO: ????? if (quantitade < 1) aqn
+    //  {
+    //      printf("\033[31mA quantidade mínima deve ser 1!\033[0m]");
+    //      return estoque_antigo;
+    //  }
+    //  TODO: talvez checar se jogo já existe no estoque
     Estoque *estoque = (Estoque *)malloc(sizeof(Estoque));             // aloca memória para o estoque
     estoque->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
     strcpy(estoque->nome, nome);                                       // copia o nome para o estoque
     estoque->quantidade = 10;                                          // incializa com 10
-    estoque->prox = estoque_antigo;                                   // o próximo é o estoque anterior
+    estoque->prox = estoque_antigo;                                    // o próximo é o estoque anterior
 
     printf("\033[32mJogo inserido com sucesso! (+10 unindades)\033[0m\n");
     return estoque;
@@ -204,16 +205,15 @@ bool vendeJogoEstoque(Estoque *estoque, char *nome, int quantidade)
     if (jogo == NULL || jogo->quantidade < 1) // Ordem importa para não causar segfault
     {
         printf("Nao ha unidades disponiveis para venda!");
-        return false
+        return false;
     }
 
     jogo->quantidade -= quantidade;
     if (quantidade == 1)
-        printf("-1 unidade de %s", jogo->nome)
+        printf("-1 unidade de %s", jogo->nome);
     else
         printf("-%d unidades de %s", jogo->quantidade, jogo->nome);
-    return true
-
+    return true;
 }
 
 /**
@@ -229,27 +229,26 @@ bool compraJogoEstoque(Estoque *estoque, char *nome, int quantidade)
     if (jogo == NULL)
     {
         printf("Jogo nao esta no estoque, para adicionar use a funcao inserir");
-        return false
+        return false;
     }
 
     jogo->quantidade += quantidade;
     if (quantidade == 1)
-        printf("+1 unidade de %s", jogo->nome)
+        printf("+1 unidade de %s", jogo->nome);
     else
         printf("+%d unidades de %s", jogo->quantidade, jogo->nome);
-    return true
+    return true;
 }
 
-
 /**
- * @brief Retorna o tamanho do estoque
+ * @brief Retorna o quantidade do estoque
  *
  * @param estoque Ponteiro para o estoque
  * @return int Tamanho do estoque
  *
  * 1: cria um ponteiro auxiliar para percorrer o estoque.
- * 2: enquanto o auxiliar não for nulo, incrementa o tamanho e o auxiliar recebe o próximo jogo.
- * 3: retorna o tamanho.
+ * 2: enquanto o auxiliar não for nulo, incrementa a quantidade e o auxiliar recebe o próximo jogo.
+ * 3: retorna o quantidade.
  *
  */
 int quantidadeJogosEstoque(Estoque *estoque)
@@ -261,5 +260,5 @@ int quantidadeJogosEstoque(Estoque *estoque)
         quantidade += aux->quantidade;
         aux = aux->prox;
     }
-    return tamanho;
+    return quantidade;
 }

@@ -1,28 +1,4 @@
 /**
- * @brief Representa uma data
- */
-typedef struct data
-{
-    int dia;
-    int mes;
-    int ano;
-} Data;
-
-/**
- * @brief Um catálogo de jogos \n
- *
- * Internamente uma lista encadeada \n
- * Guarda um nome (malloc) e uma data\n
- *
- */
-typedef struct catalogo
-{
-    char *nome;
-    Data data_lancamento;
-    struct catalogo *prox;
-} Catalogo;
-
-/**
  * @brief Cria um novo catálogo
  *
  * @return Catalogo* Ponteiro para o catálogo criado
@@ -37,7 +13,7 @@ Catalogo *criaCatalogo(void);
  * @param data Data de lançamento do jogo
  * @return Catalogo* Ponteiro para o catálogo
  */
-Catalogo *insereJogoCatalogo(Catalogo *catalogo, char *nome, Data data);
+Catalogo *insereJogoCatalogo(Catalogo *catalogo, char *nome, int dia, int mes, int ano);
 
 /**
  * @brief Imprime o catálogo

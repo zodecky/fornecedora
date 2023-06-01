@@ -158,13 +158,14 @@ int main()
         return 1;
     }
 
-    Catalogo *catalogo = criaCatalogo();
+    void *catalogo = criaCatalogo();
     char comando[20];
 
     while (1)
     {
-        printf(ANSI_COLOR_CYAN "Digite um comando (insere, busca, remove, imprime, tamanho, sair, limpa (bd), salva, carrega)): " ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nDigite um comando (insere, busca, remove, imprime, tamanho, sair, limpa (bd), salva, carrega)): " ANSI_COLOR_RESET);
         scanf(" %[^\n]", comando);
+        printf(ANSI_COLOR_CYAN "------------------------------------------------------------\n\n" ANSI_COLOR_RESET);
 
         if (strcmp(comando, "insere") == 0)
         {
@@ -177,8 +178,7 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
             scanf("%d %d %d", &dia, &mes, &ano);
 
-            Data data = {dia, mes, ano};
-            catalogo = insereJogoCatalogo(catalogo, nome, data);
+            catalogo = insereJogoCatalogo(catalogo, nome, dia, mes, ano);
         }
         else if (strcmp(comando, "busca") == 0)
         {
@@ -187,7 +187,7 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            Catalogo *jogo = buscaJogoCatalogo(catalogo, nome);
+            void *jogo = buscaJogoCatalogo(catalogo, nome);
             if (jogo == NULL)
             {
                 printf(ANSI_COLOR_RED "Jogo nao encontrado!\n" ANSI_COLOR_RESET);

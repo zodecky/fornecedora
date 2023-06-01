@@ -1,7 +1,9 @@
+#include <stdbool.h>
+
 /**
  * @brief Estrutura de um estoque \n
  * Guarda um nome (malloc) e uma quantidade \n
- * Internamente uma lista encadeada
+ * Internamente uma lista encadeada ERRADOOO!!!!!! TODO: arrumar
  */
 typedef struct estoque
 {
@@ -18,7 +20,7 @@ typedef struct estoque
  * @param quantidade
  * @return Estoque*
  */
-Estoque *criaEstoque(char *nome, int quantidade);
+Estoque *criaEstoque(void);
 
 /**
  * @brief Insere um novo jogo no estoque
@@ -28,7 +30,7 @@ Estoque *criaEstoque(char *nome, int quantidade);
  * @param quantidade
  * @return Estoque*
  */
-Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome, int quantidade);
+Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome);
 
 /**
  * @brief Imprime o estoque
@@ -69,7 +71,7 @@ Estoque *removeJogoEstoque(Estoque *estoque, char *nome);
  * @param nome
  * @return Estoque*
  */
-Estoque *vendeJogoEstoque(Estoque *estoque, char *nome);
+bool vendeJogoEstoque(Estoque *estoque, char *nome, int quantidade);
 
 /**
  * @brief Compra um jogo para o estoque
@@ -78,7 +80,7 @@ Estoque *vendeJogoEstoque(Estoque *estoque, char *nome);
  * @param nome
  * @return Estoque*
  */
-Estoque *compraJogoEstoque(Estoque *estoque, char *nome);
+bool compraJogoEstoque(Estoque *estoque, char *nome, int quantidade);
 
 /**
  * @brief Retorna a quantidade de jogos no estoque
