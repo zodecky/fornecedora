@@ -41,6 +41,7 @@
     "munit.h": "c",
     "sqlite3.h": "c",
     "stdbool.h": "c",
-    "ARVORE.C": "cpp"
+    "ARVORE.C": "cpp",
+    "string.h": "c"
   }
 }

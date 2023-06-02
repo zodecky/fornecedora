@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/******************************/
+/*          MODULOS           */
+#include "../include/codes.h"
+/******************************/
+
 /**
  * @brief Representa uma data
  */
@@ -38,9 +43,10 @@ typedef struct catalogo
  *
  * Caso 1: retorna null
  */
-Catalogo *criaCatalogo(void)
+ReturnCode criaCatalogo(void *ptr)
 {
-    return NULL;
+    ptr = (Catalogo *)NULL;
+    return ok;
 }
 
 /**
@@ -58,7 +64,7 @@ Catalogo *criaCatalogo(void)
  * @return Catalogo* Ponteiro para o catálogo
  *
  */
-Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int mes, int ano)
+ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int mes, int ano)
 {
     Data data = {dia, mes, ano};
 
@@ -66,35 +72,35 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int
     if (data.dia < 1 || data.dia > 31)
     {
         printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
     if (data.mes < 1 || data.mes > 12)
     {
         printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
     if (data.ano < 1)
     {
         printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
 
     if (data.mes == 2 && data.dia > 29)
     {
         printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
     else if ((data.mes == 4 || data.mes == 6 || data.mes == 9 || data.mes == 11) && data.dia > 30)
     {
         printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
 
     if (data.ano % 4 != 0 && data.mes == 2 && data.dia > 28)
     {
         // print explica o erro
         printf("\033[31mO dia 28 de fevereiro somente existe em anos bissextos\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
 
     // check numero de digitos do ano
@@ -108,17 +114,25 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int
     if (digitos != 4)
     {
         printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
-        return catalogo_antigo;
+        return formato_invalido;
     }
 
     Catalogo *catalogo = (Catalogo *)malloc(sizeof(Catalogo));          // aloca memória para o catálogo
     catalogo->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
-    strcpy(catalogo->nome, nome);                                       // copia o nome para o catálogo
-    catalogo->data_lancamento = data;                                   // copia a data para o catálogo
-    catalogo->prox = catalogo_antigo;                                   // o próximo é o catalogo anterior
+
+    if (catalogo == NULL || catalogo->nome == NULL) // checa se a alocação foi bem sucedida
+    {
+        printf("\033[31mErro de alocacao!\033[0m\n");
+        return erro_alocacao;
+    }
+
+    strcpy(catalogo->nome, nome);     // copia o nome para o catálogo
+    catalogo->data_lancamento = data; // copia a data para o catálogo
+    catalogo->prox = catalogo_antigo; // o próximo é o catalogo anterior
 
     printf("\033[32mJogo inserido com sucesso!\033[0m\n");
-    return catalogo;
+    catalogo_antigo = catalogo;
+    return ok;
 }
 
 /**
@@ -139,13 +153,13 @@ Catalogo *insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int
  * Caso 1: O catálogo está vazio -> imprime que o catálogo está vazio.
  * Caso 2: O catálogo não está vazio -> imprime o catálogo.
  */
-void imprimeCatalogo(Catalogo *catalogo)
+ReturnCode imprimeCatalogo(Catalogo *catalogo)
 {
     Catalogo *aux = catalogo;
     if (aux == NULL)
     {
         printf("\x1b[31mO catalogo esta vazio!\n\x1b[0m");
-        return;
+        return ok_empty;
     }
 
     printf("\x1b[32m******** Imrpimindo o catalogo *******\n\n\x1b[0m");
@@ -156,6 +170,7 @@ void imprimeCatalogo(Catalogo *catalogo)
         aux = aux->prox;
     }
     printf("\x1b[32m******** Fim da impressao *******\n\n\x1b[0m");
+    return ok;
 }
 
 /**
@@ -172,7 +187,7 @@ void imprimeCatalogo(Catalogo *catalogo)
  *
  * @param catalogo Ponteiro para o catálogo
  */
-void liberaCatalogo(Catalogo *catalogo)
+ReturnCode liberaCatalogo(Catalogo *catalogo)
 {
     Catalogo *aux = catalogo;
     while (aux != NULL)
@@ -182,6 +197,7 @@ void liberaCatalogo(Catalogo *catalogo)
         free(aux);
         aux = aux2;
     }
+    return ok;
 }
 
 /**
