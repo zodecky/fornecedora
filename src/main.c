@@ -9,6 +9,7 @@
 /* Modulos */
 #include "../include/estoque.h"
 #include "../include/catalogo.h"
+#include "../include/codes.h"
 
 /**
  * @brief Cria a tabela catalogo no banco de dados, caso não exista
