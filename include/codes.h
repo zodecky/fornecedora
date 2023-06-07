@@ -4,5 +4,5 @@ typedef enum return_codes
     formato_invalido,
     erro_alocacao,
     ok_empty,
-    ok_notfound,
+    ok_jogo_nao_encontrado,
 } ReturnCode;

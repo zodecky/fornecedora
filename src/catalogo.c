@@ -1,17 +1,27 @@
-#include "catalogo.h"
+// REFAZER COMENT FUNCOES
+/************************************************************/
+/*                         EXTERNOS                         *
+/************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/******************************/
-/*          MODULOS           */
+/************************************************************/
+/*                         MODULOS                          *
+/************************************************************/
 #include "../include/codes.h"
-/******************************/
+#include "catalogo.h"
 
-/**
+/************************************************************/
+/*                         STRUCTS                          *
+/************************************************************/
+
+/****************************************************
  * @brief Representa uma data
- */
+ *
+ *
+ *****************************************************/
 typedef struct data
 {
     int dia;
@@ -19,13 +29,13 @@ typedef struct data
     int ano;
 } Data;
 
-/**
+/****************************************************
  * @brief Um catálogo de jogos \n
  *
  * Internamente uma lista encadeada \n
  * Guarda um nome (malloc) e uma data\n
  *
- */
+ *****************************************************/
 typedef struct catalogo
 {
     char *nome;
@@ -33,7 +43,11 @@ typedef struct catalogo
     struct catalogo *prox;
 } Catalogo;
 
-/**
+/************************************************************/
+/*                         FUNÇÕES                          *
+/************************************************************/
+
+/****************************************************
  * @brief Cria um novo catálogo
  *
  * A função retorna NULL, para que ao inserir um jogo
@@ -42,14 +56,15 @@ typedef struct catalogo
  * @return Catalogo*
  *
  * Caso 1: retorna null
- */
+ *
+ *****************************************************/
 ReturnCode criaCatalogo(void *ptr)
 {
     ptr = (Catalogo *)NULL;
     return ok;
 }
 
-/**
+/****************************************************
  * @brief Insere um novo jogo no catálogo
  *
  * @param catalogo Ponteiro para o catálogo
@@ -63,7 +78,7 @@ ReturnCode criaCatalogo(void *ptr)
  *
  * @return Catalogo* Ponteiro para o catálogo
  *
- */
+ *****************************************************/
 ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int mes, int ano)
 {
     Data data = {dia, mes, ano};
@@ -135,7 +150,7 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
     return ok;
 }
 
-/**
+/****************************************************
  * @brief Imprime o catálogo
  *
  * A função percorre o catálogo e imprime o nome e a data de lançamento
@@ -152,7 +167,7 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
  *
  * Caso 1: O catálogo está vazio -> imprime que o catálogo está vazio.
  * Caso 2: O catálogo não está vazio -> imprime o catálogo.
- */
+ *****************************************************/
 ReturnCode imprimeCatalogo(Catalogo *catalogo)
 {
     Catalogo *aux = catalogo;
@@ -173,7 +188,7 @@ ReturnCode imprimeCatalogo(Catalogo *catalogo)
     return ok;
 }
 
-/**
+/****************************************************
  * @brief Libera a memória alocada pelo catálogo
  *
  * A função percorre o catálogo e libera a memória alocada
@@ -186,7 +201,7 @@ ReturnCode imprimeCatalogo(Catalogo *catalogo)
  * 3: o auxiliar recebe o próximo jogo. (atualiza o ponteiro auxiliar)
  *
  * @param catalogo Ponteiro para o catálogo
- */
+ *****************************************************/
 ReturnCode liberaCatalogo(Catalogo *catalogo)
 {
     Catalogo *aux = catalogo;
@@ -200,7 +215,7 @@ ReturnCode liberaCatalogo(Catalogo *catalogo)
     return ok;
 }
 
-/**
+/****************************************************
  * @brief Busca um jogo no catálogo
  *
  * @param catalogo Ponteiro para o catálogo
@@ -213,18 +228,24 @@ ReturnCode liberaCatalogo(Catalogo *catalogo)
  *
  * Caso 1: o jogo não foi encontrado, retorna NULL.
  * Caso 2: o jogo foi encontrado, retorna o ponteiro para o jogo.
- */
-Catalogo *buscaJogoCatalogo(Catalogo *catalogo, char *nome)
+ *****************************************************/
+ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval)
 {
     Catalogo *aux = catalogo;
     while (aux != NULL && strcmp(aux->nome, nome) != 0)
     {
         aux = aux->prox;
     }
-    return aux;
+    if (aux == NULL)
+    {
+        returnval = NULL;
+        return ok_jogo_nao_encontrado;
+    }
+    returnval = aux;
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Remove um jogo do catálogo
  *
  * @param catalogo Ponteiro para o catálogo
@@ -245,8 +266,8 @@ Catalogo *buscaJogoCatalogo(Catalogo *catalogo, char *nome)
  * Caso 3: o jogo foi encontrado e não é o primeiro -> remove o jogo.
  * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
  *
- */
-Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
+ *****************************************************/
+ReturnCode *removeJogoCatalogo(Catalogo *catalogo, char *nome)
 {
     Catalogo *aux = catalogo;
     Catalogo *ant = NULL;
@@ -257,7 +278,7 @@ Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
     }
     if (aux == NULL) // não encontrou o jogo
     {
-        return catalogo;
+        return ok_jogo_nao_encontrado;
     }
     if (ant == NULL) // é o primeiro jogo do catálogo
     {
@@ -269,10 +290,10 @@ Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
     }
     free(aux->nome);
     free(aux);
-    return catalogo;
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Retorna o tamanho do catálogo
  *
  * @param catalogo Ponteiro para o catálogo
@@ -282,15 +303,21 @@ Catalogo *removeJogoCatalogo(Catalogo *catalogo, char *nome)
  * 2: enquanto o auxiliar não for nulo, incrementa o tamanho e o auxiliar recebe o próximo jogo.
  * 3: retorna o tamanho.
  *
- */
-int tamanhoCatalogo(Catalogo *catalogo)
+ *****************************************************/
+ReturnCode tamanhoCatalogo(Catalogo *catalogo, int *rettamanho)
 {
-    int tamanho = 0;
+    *rettamanho = 0;
     Catalogo *aux = catalogo;
+
+    if (aux == NULL)
+    {
+        return ok_empty;
+    }
+
     while (aux != NULL)
     {
-        tamanho++;
+        *rettamanho = *rettamanho + 1;
         aux = aux->prox;
     }
-    return tamanho;
+    return ok;
 }
