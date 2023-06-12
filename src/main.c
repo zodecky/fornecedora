@@ -4,132 +4,132 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <sqlite3.h>
+// #include <sqlite3.h>
 
 /* Modulos */
 #include "../include/estoque.h"
 #include "../include/catalogo.h"
 #include "../include/codes.h"
 
-/**
- * @brief Cria a tabela catalogo no banco de dados, caso não exista
- *
- * @param db
- * @return true (sucesso) or false (falha)
- */
-bool cria_tabela(sqlite3 *db)
-{
-    char *sql = "CREATE TABLE IF NOT EXISTS catalogo("
-                "nome TEXT NOT NULL PRIMARY KEY,"
-                "dia INTEGER NOT NULL,"
-                "mes INTEGER NOT NULL,"
-                "ano INTEGER NOT NULL);";
+// /**
+//  * @brief Cria a tabela catalogo no banco de dados, caso não exista
+//  *
+//  * @param db
+//  * @return true (sucesso) or false (falha)
+//  */
+// bool cria_tabela(sqlite3 *db)
+// {
+//     char *sql = "CREATE TABLE IF NOT EXISTS catalogo("
+//                 "nome TEXT NOT NULL PRIMARY KEY,"
+//                 "dia INTEGER NOT NULL,"
+//                 "mes INTEGER NOT NULL,"
+//                 "ano INTEGER NOT NULL);";
 
-    char *mensagem;
-    int rc = sqlite3_exec(db, sql, NULL, 0, &mensagem);
+//     char *mensagem;
+//     int rc = sqlite3_exec(db, sql, NULL, 0, &mensagem);
 
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Erro ao criar a tabela: %s\n", sqlite3_errmsg(db));
-        sqlite3_free(mensagem);
-        return false;
-    }
+//     if (rc != SQLITE_OK)
+//     {
+//         fprintf(stderr, "Erro ao criar a tabela: %s\n", sqlite3_errmsg(db));
+//         sqlite3_free(mensagem);
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
-bool salva_no_db(sqlite3 *db, Catalogo *catalogo)
-{
-    char *sql = "INSERT INTO catalogo (nome, dia, mes, ano) VALUES (?, ?, ?, ?);";
+// bool salva_no_db(sqlite3 *db, Catalogo *catalogo)
+// {
+//     char *sql = "INSERT INTO catalogo (nome, dia, mes, ano) VALUES (?, ?, ?, ?);";
 
-    sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+//     sqlite3_stmt *stmt;
+//     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Erro na funcao prepare do banco de dados: %s\n", sqlite3_errmsg(db));
-        return false;
-    }
+//     if (rc != SQLITE_OK)
+//     {
+//         fprintf(stderr, "Erro na funcao prepare do banco de dados: %s\n", sqlite3_errmsg(db));
+//         return false;
+//     }
 
-    while (catalogo != NULL)
-    {
-        sqlite3_bind_text(stmt, 1, catalogo->nome, -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, catalogo->data_lancamento.dia);
-        sqlite3_bind_int(stmt, 3, catalogo->data_lancamento.mes);
-        sqlite3_bind_int(stmt, 4, catalogo->data_lancamento.ano);
+//     while (catalogo != NULL)
+//     {
+//         sqlite3_bind_text(stmt, 1, catalogo->nome, -1, SQLITE_STATIC);
+//         sqlite3_bind_int(stmt, 2, catalogo->data_lancamento.dia);
+//         sqlite3_bind_int(stmt, 3, catalogo->data_lancamento.mes);
+//         sqlite3_bind_int(stmt, 4, catalogo->data_lancamento.ano);
 
-        rc = sqlite3_step(stmt);
-        if (rc != SQLITE_DONE)
-        {
-            fprintf(stderr, "Erro na insercao no banco de dados: %s\n", sqlite3_errmsg(db));
-            return false;
-        }
+//         rc = sqlite3_step(stmt);
+//         if (rc != SQLITE_DONE)
+//         {
+//             fprintf(stderr, "Erro na insercao no banco de dados: %s\n", sqlite3_errmsg(db));
+//             return false;
+//         }
 
-        catalogo = catalogo->prox;
-    }
+//         catalogo = catalogo->prox;
+//     }
 
-    sqlite3_finalize(stmt);
-    return true;
-}
+//     sqlite3_finalize(stmt);
+//     return true;
+// }
 
-Catalogo *carrega_do_db(sqlite3 *db, Catalogo *catalogo)
-{
-    char *sql = "SELECT * FROM catalogo;";
+// Catalogo *carrega_do_db(sqlite3 *db, Catalogo *catalogo)
+// {
+//     char *sql = "SELECT * FROM catalogo;";
 
-    sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+//     sqlite3_stmt *stmt;
+//     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Erro ao preparar o statement: %s\n", sqlite3_errmsg(db));
-        return NULL;
-    }
+//     if (rc != SQLITE_OK)
+//     {
+//         fprintf(stderr, "Erro ao preparar o statement: %s\n", sqlite3_errmsg(db));
+//         return NULL;
+//     }
 
-    while (1)
-    {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_DONE)
-        {
-            break;
-        }
-        else if (rc != SQLITE_ROW)
-        {
-            fprintf(stderr, "Erro ao executar o statement: %s\n", sqlite3_errmsg(db));
-            return false;
-        }
+//     while (1)
+//     {
+//         rc = sqlite3_step(stmt);
+//         if (rc == SQLITE_DONE)
+//         {
+//             break;
+//         }
+//         else if (rc != SQLITE_ROW)
+//         {
+//             fprintf(stderr, "Erro ao executar o statement: %s\n", sqlite3_errmsg(db));
+//             return false;
+//         }
 
-        char *nome = (char *)sqlite3_column_text(stmt, 0);
-        int dia = sqlite3_column_int(stmt, 1);
-        int mes = sqlite3_column_int(stmt, 2);
-        int ano = sqlite3_column_int(stmt, 3);
+//         char *nome = (char *)sqlite3_column_text(stmt, 0);
+//         int dia = sqlite3_column_int(stmt, 1);
+//         int mes = sqlite3_column_int(stmt, 2);
+//         int ano = sqlite3_column_int(stmt, 3);
 
-        // printf("%s %d %d %d\n", nome, dia, mes, ano);
+//         // printf("%s %d %d %d\n", nome, dia, mes, ano);
 
-        Data data = {dia, mes, ano};
-        catalogo = insereJogoCatalogo(catalogo, nome, data);
-    }
+//         Data data = {dia, mes, ano};
+//         catalogo = insereJogoCatalogo(catalogo, nome, data);
+//     }
 
-    sqlite3_finalize(stmt);
-    return catalogo;
-}
+//     sqlite3_finalize(stmt);
+//     return catalogo;
+// }
 
-/* limpa db */
-bool limpa_db(sqlite3 *db)
-{
-    char *sql = "DELETE FROM catalogo;";
+// /* limpa db */
+// bool limpa_db(sqlite3 *db)
+// {
+//     char *sql = "DELETE FROM catalogo;";
 
-    char *mensagem;
-    int rc = sqlite3_exec(db, sql, NULL, 0, &mensagem);
+//     char *mensagem;
+//     int rc = sqlite3_exec(db, sql, NULL, 0, &mensagem);
 
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Erro ao limpar a tabela: %s\n", sqlite3_errmsg(db));
-        sqlite3_free(mensagem);
-        return false;
-    }
+//     if (rc != SQLITE_OK)
+//     {
+//         fprintf(stderr, "Erro ao limpar a tabela: %s\n", sqlite3_errmsg(db));
+//         sqlite3_free(mensagem);
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
@@ -138,6 +138,8 @@ bool limpa_db(sqlite3 *db)
 #define ANSI_COLOR_MAGENTA "\x1b[35m"
 #define ANSI_COLOR_CYAN "\x1b[36m"
 #define ANSI_COLOR_RESET "\x1b[0m"
+
+ReturnCode code;
 
 int main()
 {
@@ -159,7 +161,9 @@ int main()
         return 1;
     }
 
-    void *catalogo = criaCatalogo();
+    void *catalogo;
+
+    criaCatalogo(catalogo);
     char comando[20];
 
     while (1)
@@ -179,7 +183,20 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
             scanf("%d %d %d", &dia, &mes, &ano);
 
-            catalogo = insereJogoCatalogo(catalogo, nome, dia, mes, ano);
+            code = insereJogoCatalogo(catalogo, nome, dia, mes, ano);
+
+            if (code == ok)
+            {
+                printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
+            }
+            else if (code == erro_alocacao)
+            {
+                printf(ANSI_COLOR_RED "Erro de alocacao de memoria ao o jogo!\n" ANSI_COLOR_RESET);
+            }
+            else if (code == formato_invalido)
+            {
+                printf(ANSI_COLOR_RED "Formato invalido!\n" ANSI_COLOR_RESET);
+            }
         }
         else if (strcmp(comando, "busca") == 0)
         {
@@ -188,7 +205,9 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            void *jogo = buscaJogoCatalogo(catalogo, nome);
+            void *jogo;
+
+            code = buscaJogoCatalogo(catalogo, nome, jogo);
             if (jogo == NULL)
             {
                 printf(ANSI_COLOR_RED "Jogo nao encontrado!\n" ANSI_COLOR_RESET);
@@ -206,12 +225,12 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            catalogo = removeJogoCatalogo(catalogo, nome);
+            code = removeJogoCatalogo(catalogo, nome);
             printf(ANSI_COLOR_GREEN "Jogo removido com sucesso!\n" ANSI_COLOR_RESET);
         }
         else if (strcmp(comando, "imprime") == 0)
         {
-            imprimeCatalogo(catalogo);
+            code = imprimeCatalogo(catalogo);
         }
         else if (strcmp(comando, "tamanho") == 0)
         {

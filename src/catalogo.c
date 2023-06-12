@@ -174,7 +174,7 @@ ReturnCode imprimeCatalogo(Catalogo *catalogo)
     if (aux == NULL)
     {
         printf("\x1b[31mO catalogo esta vazio!\n\x1b[0m");
-        return ok_empty;
+        return ok_vazio;
     }
 
     printf("\x1b[32m******** Imrpimindo o catalogo *******\n\n\x1b[0m");
@@ -267,7 +267,7 @@ ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval)
  * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
  *
  *****************************************************/
-ReturnCode *removeJogoCatalogo(Catalogo *catalogo, char *nome)
+ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome)
 {
     Catalogo *aux = catalogo;
     Catalogo *ant = NULL;
@@ -311,7 +311,7 @@ ReturnCode tamanhoCatalogo(Catalogo *catalogo, int *rettamanho)
 
     if (aux == NULL)
     {
-        return ok_empty;
+        return ok_vazio;
     }
 
     while (aux != NULL)
