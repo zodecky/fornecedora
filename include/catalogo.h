@@ -1,9 +1,11 @@
+#include "codes.h"
+
 /****************************************************
  * @brief Cria um novo catálogo
  *
  * @return ok
  ****************************************************/
-ReturnCode criaCatalogo(void *ptr);
+ReturnCode criaCatalogo(void);
 
 /****************************************************
  * @brief Insere um novo jogo no catálogo
@@ -13,7 +15,7 @@ ReturnCode criaCatalogo(void *ptr);
  * @param data Data de lançamento do jogo
  * @return ok, erro_alocacao, formato_invalido
  ****************************************************/
-ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int mes, int ano);
+ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano);
 
 /****************************************************
  * @brief Imprime o catálogo
@@ -22,7 +24,7 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
  *
  * @return ok, ok_vazio
  ****************************************************/
-ReturnCode imprimeCatalogo(Catalogo *catalogo);
+ReturnCode imprimeCatalogo(void);
 
 /****************************************************
  * @brief Libera a memória alocada pelo catálogo
@@ -30,7 +32,7 @@ ReturnCode imprimeCatalogo(Catalogo *catalogo);
  * @param catalogo Ponteiro para o catálogo
  * @return ok, ou causa segfault -> free()
  ****************************************************/
-ReturnCode liberaCatalogo(Catalogo *catalogo);
+ReturnCode liberaCatalogo(void);
 
 /****************************************************
  * @brief Busca um jogo no catálogo
@@ -40,7 +42,7 @@ ReturnCode liberaCatalogo(Catalogo *catalogo);
  * @param returnval Ponteiro para o jogo encontrado
  * @return ok, ok_jogo_nao_encontrado
  ****************************************************/
-ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval);
+ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano);
 
 /****************************************************
  * @brief Remove um jogo do catálogo
@@ -49,7 +51,7 @@ ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval);
  * @param nome Nome do jogo
  * @return ok, ok_jogo_nao_encontrado
  ****************************************************/
-ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome);
+ReturnCode removeJogoCatalogo(char *nome);
 
 /****************************************************
  * @brief Retorna o tamanho do catálogo
@@ -58,4 +60,4 @@ ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome);
  * @param rettamanho Ponteiro para o tamanho
  * @return ok, ok_vazio
  ****************************************************/
-ReturnCode tamanhoCatalogo(Catalogo *catalogo, int *rettamanho);
+ReturnCode tamanhoCatalogo(int *rettamanho);

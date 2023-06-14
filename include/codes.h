@@ -1,3 +1,6 @@
+#ifndef CODES
+#define CODES
+
 typedef enum return_codes
 {
     ok,
@@ -6,3 +9,5 @@ typedef enum return_codes
     ok_vazio,
     ok_jogo_nao_encontrado,
 } ReturnCode;
+
+#endif

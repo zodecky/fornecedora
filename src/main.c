@@ -143,27 +143,25 @@ ReturnCode code;
 
 int main()
 {
-    /* INICIALIZAR DB */
-    sqlite3 *db;
-    int rc = sqlite3_open("catalogo.db", &db);
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Erro ao abrir o banco de dados: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return 1;
-    }
+    // /* INICIALIZAR DB */
+    // sqlite3 *db;
+    // int rc = sqlite3_open("catalogo.db", &db);
+    // if (rc != SQLITE_OK)
+    // {
+    //     fprintf(stderr, "Erro ao abrir o banco de dados: %s\n", sqlite3_errmsg(db));
+    //     sqlite3_close(db);
+    //     return 1;
+    // }
 
-    /* CRIAR TABELA */
-    if (!cria_tabela(db))
-    {
-        fprintf(stderr, "Erro ao criar a tabela!\n");
-        sqlite3_close(db);
-        return 1;
-    }
+    // /* CRIAR TABELA */
+    // if (!cria_tabela(db))
+    // {
+    //     fprintf(stderr, "Erro ao criar a tabela!\n");
+    //     sqlite3_close(db);
+    //     return 1;
+    // }
 
-    void *catalogo;
-
-    criaCatalogo(catalogo);
+    criaCatalogo();
     char comando[20];
 
     while (1)
@@ -183,7 +181,7 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
             scanf("%d %d %d", &dia, &mes, &ano);
 
-            code = insereJogoCatalogo(catalogo, nome, dia, mes, ano);
+            code = insereJogoCatalogo(nome, dia, mes, ano);
 
             if (code == ok)
             {
@@ -201,21 +199,24 @@ int main()
         else if (strcmp(comando, "busca") == 0)
         {
             char nome[50];
+            int dia, mes, ano;
 
             printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            void *jogo;
-
-            code = buscaJogoCatalogo(catalogo, nome, jogo);
-            if (jogo == NULL)
+            code = buscaJogoCatalogo(nome, &dia, &mes, &ano);
+            if (code == ok_jogo_nao_encontrado)
             {
                 printf(ANSI_COLOR_RED "Jogo nao encontrado!\n" ANSI_COLOR_RESET);
             }
+            else if (code == ok)
+            {
+                printf(ANSI_COLOR_GREEN "Jogo encontrado: %s\n" ANSI_COLOR_RESET, nome);
+                printf(ANSI_COLOR_GREEN "Data de lancamento: %d/%d/%d\n" ANSI_COLOR_RESET, dia, mes, ano);
+            }
             else
             {
-                printf(ANSI_COLOR_GREEN "Jogo encontrado: %s\n" ANSI_COLOR_RESET, jogo->nome);
-                printf(ANSI_COLOR_GREEN "Data de lancamento: %d/%d/%d\n" ANSI_COLOR_RESET, jogo->data_lancamento.dia, jogo->data_lancamento.mes, jogo->data_lancamento.ano);
+                printf(ANSI_COLOR_RED "Erro desconhecido ao buscar o jogo!\n" ANSI_COLOR_RESET);
             }
         }
         else if (strcmp(comando, "remove") == 0)
@@ -225,52 +226,53 @@ int main()
             printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
             scanf(" %[^\n]", nome); // lê até o \n
 
-            code = removeJogoCatalogo(catalogo, nome);
+            code = removeJogoCatalogo(nome);
             printf(ANSI_COLOR_GREEN "Jogo removido com sucesso!\n" ANSI_COLOR_RESET);
         }
         else if (strcmp(comando, "imprime") == 0)
         {
-            code = imprimeCatalogo(catalogo);
+            code = imprimeCatalogo();
         }
         else if (strcmp(comando, "tamanho") == 0)
         {
-            int tamanho = tamanhoCatalogo(catalogo);
+            int tamanho;
+            code = tamanhoCatalogo(&tamanho);
             printf(ANSI_COLOR_GREEN "Numero de jogos no catalogo: %d\n" ANSI_COLOR_RESET, tamanho);
         }
-        else if (strcmp(comando, "salva") == 0)
-        {
-            if (!salva_no_db(db, catalogo))
-            {
-                fprintf(stderr, ANSI_COLOR_RED "Erro ao salvar no banco de dados!\n" ANSI_COLOR_RESET);
-            }
-            else
-            {
-                printf("\033[1;32mCatalogo salvo com sucesso!\n" ANSI_COLOR_RESET);
-            }
-        }
-        else if (strcmp(comando, "carrega") == 0)
-        {
-            catalogo = carrega_do_db(db, catalogo);
-            if (catalogo == NULL)
-            {
-                fprintf(stderr, ANSI_COLOR_RED "Erro ao carregar do banco de dados!\n" ANSI_COLOR_RESET);
-            }
-            else
-            {
-                printf(ANSI_COLOR_GREEN "Catalogo carregado com sucesso!\n" ANSI_COLOR_RESET);
-            }
-        }
-        else if (strcmp(comando, "limpa") == 0)
-        {
-            if (!limpa_db(db))
-            {
-                fprintf(stderr, ANSI_COLOR_RED "Erro ao limpar o banco de dados!\n" ANSI_COLOR_RESET);
-            }
-            else
-            {
-                printf(ANSI_COLOR_GREEN "Catalogo limpo com sucesso!\n" ANSI_COLOR_RESET);
-            }
-        }
+        // else if (strcmp(comando, "salva") == 0)
+        // {
+        //     if (!salva_no_db(db, catalogo))
+        //     {
+        //         fprintf(stderr, ANSI_COLOR_RED "Erro ao salvar no banco de dados!\n" ANSI_COLOR_RESET);
+        //     }
+        //     else
+        //     {
+        //         printf("\033[1;32mCatalogo salvo com sucesso!\n" ANSI_COLOR_RESET);
+        //     }
+        // }
+        // else if (strcmp(comando, "carrega") == 0)
+        // {
+        //     catalogo = carrega_do_db(db, catalogo);
+        //     if (catalogo == NULL)
+        //     {
+        //         fprintf(stderr, ANSI_COLOR_RED "Erro ao carregar do banco de dados!\n" ANSI_COLOR_RESET);
+        //     }
+        //     else
+        //     {
+        //         printf(ANSI_COLOR_GREEN "Catalogo carregado com sucesso!\n" ANSI_COLOR_RESET);
+        //     }
+        // }
+        // else if (strcmp(comando, "limpa") == 0)
+        // {
+        //     if (!limpa_db(db))
+        //     {
+        //         fprintf(stderr, ANSI_COLOR_RED "Erro ao limpar o banco de dados!\n" ANSI_COLOR_RESET);
+        //     }
+        //     else
+        //     {
+        //         printf(ANSI_COLOR_GREEN "Catalogo limpo com sucesso!\n" ANSI_COLOR_RESET);
+        //     }
+        // }
         else if (strcmp(comando, "sair") == 0)
         {
             break;
@@ -281,6 +283,6 @@ int main()
         }
     }
 
-    liberaCatalogo(catalogo);
+    liberaCatalogo();
     return 0;
 }

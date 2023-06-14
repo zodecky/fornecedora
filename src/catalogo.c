@@ -1,21 +1,21 @@
 // REFAZER COMENT FUNCOES
-/************************************************************/
-/*                         EXTERNOS                         *
-/************************************************************/
+/************************************************************
+ *                          EXTERNOS                        *
+ ************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/************************************************************/
-/*                         MODULOS                          *
-/************************************************************/
+/************************************************************
+ *                         MODULOS                          *
+ ************************************************************/
 #include "../include/codes.h"
 #include "catalogo.h"
 
-/************************************************************/
-/*                         STRUCTS                          *
-/************************************************************/
+/************************************************************
+ *                         STRUCTS                          *
+ ************************************************************/
 
 /****************************************************
  * @brief Representa uma data
@@ -43,9 +43,15 @@ typedef struct catalogo
     struct catalogo *prox;
 } Catalogo;
 
-/************************************************************/
-/*                         FUNÇÕES                          *
-/************************************************************/
+/************************************************************
+ *                         GLOBAIS                          *
+ ************************************************************/
+
+Catalogo *g_catalogo; // catálogo global
+
+/************************************************************
+ *                         FUNÇÕES                          *
+ ************************************************************/
 
 /****************************************************
  * @brief Cria um novo catálogo
@@ -58,9 +64,9 @@ typedef struct catalogo
  * Caso 1: retorna null
  *
  *****************************************************/
-ReturnCode criaCatalogo(void *ptr)
+ReturnCode criaCatalogo(void)
 {
-    ptr = (Catalogo *)NULL;
+    g_catalogo = NULL;
     return ok;
 }
 
@@ -79,7 +85,7 @@ ReturnCode criaCatalogo(void *ptr)
  * @return Catalogo* Ponteiro para o catálogo
  *
  *****************************************************/
-ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, int mes, int ano)
+ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
 {
     Data data = {dia, mes, ano};
 
@@ -119,11 +125,11 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
     }
 
     // check numero de digitos do ano
-    int ano = data.ano;
+    int ck_ano = data.ano;
     int digitos = 0;
-    while (ano != 0)
+    while (ck_ano != 0)
     {
-        ano /= 10;
+        ck_ano /= 10;
         digitos++;
     }
     if (digitos != 4)
@@ -143,10 +149,10 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
 
     strcpy(catalogo->nome, nome);     // copia o nome para o catálogo
     catalogo->data_lancamento = data; // copia a data para o catálogo
-    catalogo->prox = catalogo_antigo; // o próximo é o catalogo anterior
+    catalogo->prox = g_catalogo;      // o próximo é o catalogo anterior
 
     printf("\033[32mJogo inserido com sucesso!\033[0m\n");
-    catalogo_antigo = catalogo;
+    g_catalogo = catalogo;
     return ok;
 }
 
@@ -168,9 +174,9 @@ ReturnCode insereJogoCatalogo(Catalogo *catalogo_antigo, char *nome, int dia, in
  * Caso 1: O catálogo está vazio -> imprime que o catálogo está vazio.
  * Caso 2: O catálogo não está vazio -> imprime o catálogo.
  *****************************************************/
-ReturnCode imprimeCatalogo(Catalogo *catalogo)
+ReturnCode imprimeCatalogo(void)
 {
-    Catalogo *aux = catalogo;
+    Catalogo *aux = g_catalogo;
     if (aux == NULL)
     {
         printf("\x1b[31mO catalogo esta vazio!\n\x1b[0m");
@@ -202,9 +208,9 @@ ReturnCode imprimeCatalogo(Catalogo *catalogo)
  *
  * @param catalogo Ponteiro para o catálogo
  *****************************************************/
-ReturnCode liberaCatalogo(Catalogo *catalogo)
+ReturnCode liberaCatalogo(void)
 {
-    Catalogo *aux = catalogo;
+    Catalogo *aux = g_catalogo;
     while (aux != NULL)
     {
         Catalogo *aux2 = aux->prox;
@@ -229,19 +235,23 @@ ReturnCode liberaCatalogo(Catalogo *catalogo)
  * Caso 1: o jogo não foi encontrado, retorna NULL.
  * Caso 2: o jogo foi encontrado, retorna o ponteiro para o jogo.
  *****************************************************/
-ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval)
+ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano)
 {
-    Catalogo *aux = catalogo;
-    while (aux != NULL && strcmp(aux->nome, nome) != 0)
+    Catalogo *aux = g_catalogo;
+    while (aux != NULL && strcmp(aux->nome, nome) != 0) // strcmp depois, para nao causar segfault
     {
         aux = aux->prox;
     }
     if (aux == NULL)
     {
-        returnval = NULL;
+        *dia = -1;
+        *mes = -1;
+        *ano = -1;
         return ok_jogo_nao_encontrado;
     }
-    returnval = aux;
+    *dia = aux->data_lancamento.dia;
+    *mes = aux->data_lancamento.mes;
+    *ano = aux->data_lancamento.ano;
     return ok;
 }
 
@@ -267,9 +277,9 @@ ReturnCode buscaJogoCatalogo(Catalogo *catalogo, char *nome, void *returnval)
  * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
  *
  *****************************************************/
-ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome)
+ReturnCode removeJogoCatalogo(char *nome)
 {
-    Catalogo *aux = catalogo;
+    Catalogo *aux = g_catalogo;
     Catalogo *ant = NULL;
     while (aux != NULL && strcmp(aux->nome, nome) != 0)
     {
@@ -282,7 +292,7 @@ ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome)
     }
     if (ant == NULL) // é o primeiro jogo do catálogo
     {
-        catalogo = aux->prox;
+        g_catalogo = aux->prox;
     }
     else // não é o primeiro jogo do catálogo
     {
@@ -304,10 +314,10 @@ ReturnCode removeJogoCatalogo(Catalogo *catalogo, char *nome)
  * 3: retorna o tamanho.
  *
  *****************************************************/
-ReturnCode tamanhoCatalogo(Catalogo *catalogo, int *rettamanho)
+ReturnCode tamanhoCatalogo(int *rettamanho)
 {
     *rettamanho = 0;
-    Catalogo *aux = catalogo;
+    Catalogo *aux = g_catalogo;
 
     if (aux == NULL)
     {
