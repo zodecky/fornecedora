@@ -13,7 +13,7 @@ ReturnCode criaCatalogo(void);
  * @param catalogo Ponteiro para o catálogo
  * @param nome Nome do jogo
  * @param data Data de lançamento do jogo
- * @return ok, erro_alocacao, formato_invalido
+ * @return ok, erro_alocacao, formato_invalido (multiplos retornos)
  ****************************************************/
 ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano);
 

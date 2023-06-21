@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "catalogo.h"
 #include "munit.h"
+#include "codes.h"
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -23,21 +24,25 @@
 /* Tests are functions that return void, and take a single void*
  * parameter.  We'll get to what that parameter is later. */
 static MunitResult
-test_compare(const MunitParameter params[], void *data)
+test_criaCatalogo(const MunitParameter params[], void *data)
 {
-  Catalogo *catalogo = criaCatalogo();
+  ReturnCode = criaCatalogo();
 
-  munit_assert_ptr_equal(catalogo, (Catalogo *)NULL);
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
 
-  catalogo = insereJogoCatalogo(catalogo, "Jogo 1", (Data){1, 1, 2200});
+static MunitResult
+test_insereJogo(const MunitParameter params[], void *data)
+{
+  ReturnCode = insereJogoCatalogo("Jogo1", 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
-  Catalogo *test = (Catalogo *)munit_malloc(sizeof(Catalogo));
-  test->nome = (char *)munit_malloc(sizeof(char) * (strlen("Jogo 1") + 1));
-  strcpy(test->nome, "Jogo 1");
-  test->data_lancamento = (Data){1, 1, 2200};
-  test->prox = NULL;
-
-  return MUNIT_OK;
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
 }
 
 static MunitResult
@@ -190,10 +195,11 @@ static MunitTest test_suite_tests[] = {
     {/* The name is just a unique human-readable way to identify the
       * test. You can use it to run a specific test if you want, but
       * usually it's mostly decorative. */
-     (char *)"/example/compare",
+     (char *)"/catalogo/criaCatalogo",
      /* You probably won't be surprised to learn that the tests are
       * functions. */
-     test_compare,
+     test_criaCatalogo,
+     test_insereJogoCatalogo,
      /* If you want, you can supply a function to set up a fixture.  If
       * you supply NULL, the user_data parameter from munit_suite_main
       * will be used directly.  If, however, you provide a callback

@@ -23,14 +23,11 @@ all: release test
 
 release: $(filter-out $(OBJ_DIR)/test.o, $(OBJS))
 	$(CC) $(CFLAGS) $(filter-out $(OBJ_DIR)/test.o, $(OBJS)) -o $(RELEASE_BIN_DIR)/myprogram $(LIBS)
-	cp -r $(LIB_DIR) $(RELEASE_LIB_DIR)
 
 test: $(filter-out $(OBJ_DIR)/main.o, $(OBJS)) $(TEST_OBJS)
 	$(CC) $(CFLAGS) $(filter-out $(OBJ_DIR)/main.o, $(OBJS)) $(TEST_OBJS) -o $(BIN_DIR)/test $(LIBS)
 	./$(BIN_DIR)/test
 
-install:
-	cp -r $(LIB_DIR) /usr/local/lib
 
 run: release
 	./$(RELEASE_BIN_DIR)/myprogram

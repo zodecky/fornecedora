@@ -11,7 +11,7 @@
  *                         MODULOS                          *
  ************************************************************/
 #include "../include/codes.h"
-#include "catalogo.h"
+#include "../include/catalogo.h"
 
 /************************************************************
  *                         STRUCTS                          *
@@ -47,7 +47,7 @@ typedef struct catalogo
  *                         GLOBAIS                          *
  ************************************************************/
 
-Catalogo *g_catalogo; // catálogo global
+static Catalogo *g_catalogo; // catálogo global
 
 /************************************************************
  *                         FUNÇÕES                          *
@@ -91,38 +91,22 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
 
     // checa formato da data
     if (data.dia < 1 || data.dia > 31)
-    {
-        printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_dia_entre_1_e_31;
+
     if (data.mes < 1 || data.mes > 12)
-    {
-        printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_mes_entre_1_e_12;
+
     if (data.ano < 1)
-    {
-        printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_ano_maior_que_0;
 
     if (data.mes == 2 && data.dia > 29)
-    {
-        printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_fevereiro_tem_28_dias;
+
     else if ((data.mes == 4 || data.mes == 6 || data.mes == 9 || data.mes == 11) && data.dia > 30)
-    {
-        printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_meses_4_6_9_11_nao_possuem_dia_31;
 
     if (data.ano % 4 != 0 && data.mes == 2 && data.dia > 28)
-    {
-        // print explica o erro
-        printf("\033[31mO dia 28 de fevereiro somente existe em anos bissextos\033[0m\n");
-        return formato_invalido;
-    }
+        return formato_invalido_dia_28_de_fevereiro_somente_existe_em_anos_bissextos;
 
     // check numero de digitos do ano
     int ck_ano = data.ano;
@@ -134,8 +118,8 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
     }
     if (digitos != 4)
     {
-        printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
-        return formato_invalido;
+
+        return formato_invalido_ano_deve_possuir_quatro_digitos;
     }
 
     Catalogo *catalogo = (Catalogo *)malloc(sizeof(Catalogo));          // aloca memória para o catálogo
@@ -143,7 +127,6 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
 
     if (catalogo == NULL || catalogo->nome == NULL) // checa se a alocação foi bem sucedida
     {
-        printf("\033[31mErro de alocacao!\033[0m\n");
         return erro_alocacao;
     }
 
@@ -151,7 +134,6 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
     catalogo->data_lancamento = data; // copia a data para o catálogo
     catalogo->prox = g_catalogo;      // o próximo é o catalogo anterior
 
-    printf("\033[32mJogo inserido com sucesso!\033[0m\n");
     g_catalogo = catalogo;
     return ok;
 }

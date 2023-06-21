@@ -184,17 +184,34 @@ int main()
             code = insereJogoCatalogo(nome, dia, mes, ano);
 
             if (code == ok)
-            {
                 printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
-            }
+
             else if (code == erro_alocacao)
-            {
-                printf(ANSI_COLOR_RED "Erro de alocacao de memoria ao o jogo!\n" ANSI_COLOR_RESET);
-            }
-            else if (code == formato_invalido)
-            {
-                printf(ANSI_COLOR_RED "Formato invalido!\n" ANSI_COLOR_RESET);
-            }
+                printf("\033[31mErro de alocacao!\033[0m\n");
+
+            else if (code == formato_invalido_ano_deve_possuir_quatro_digitos)
+                printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
+
+            else if (code == formato_invalido_dia_28_de_fevereiro_somente_existe_em_anos_bissextos)
+                printf("\033[31mO dia 28 de fevereiro somente existe em anos bissextos\033[0m\n");
+
+            else if (code == formato_invalido_meses_4_6_9_11_nao_possuem_dia_31)
+                printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
+
+            else if (code == formato_invalido_fevereiro_tem_28_dias)
+                printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
+
+            else if (code == formato_invalido_ano_maior_que_0)
+                printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
+
+            else if (code == formato_invalido_mes_entre_1_e_12)
+                printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
+
+            else if (code == formato_invalido_dia_entre_1_e_31)
+                printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
+
+            else
+                printf("\033[31mErro desconhecido!\033[0m\n");
         }
         else if (strcmp(comando, "busca") == 0)
         {

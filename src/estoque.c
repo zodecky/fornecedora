@@ -1,11 +1,45 @@
-#include "estoque.h"
+// REFAZER COMENT FUNCOES
+/************************************************************
+ *                          EXTERNOS                        *
+ ************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 
+/************************************************************
+ *                         MODULOS                          *
+ ************************************************************/
+#include "../include/codes.h"
+#include "../include/estoque.h"
+
+/************************************************************
+ *                         STRUCTS                          *
+ ************************************************************/
+
 /**
+ * @brief Estrutura de um estoque \n
+ * Guarda um nome (malloc) e uma quantidade \n
+ * Internamente uma lista encadeada \n
+ */
+typedef struct estoque
+{
+    struct estoque *prox;
+    int quantidade;
+    char *nome;
+} Estoque;
+
+/************************************************************
+ *                         GLOBAIS                          *
+ ************************************************************/
+
+static Estoque *g_estoque; // estoque global
+
+/************************************************************
+ *                         FUNÇÕES                          *
+ ************************************************************/
+
+/****************************************************
  * @brief Cria um novo estoque
  *
  * A função retorna NULL, para que ao inserir um jogo
@@ -14,50 +48,53 @@
  * @return Estoque*
  *
  * Caso 1: retorna null
- */
-Estoque *criaEstoque(void)
+ *
+ *****************************************************/
+ReturnCode criaEstoque(void)
 {
-    return NULL;
+    g_estoque = NULL;
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Insere um novo jogo no estoque
  *
  * @param estoque Ponteiro para o estoque
  * @param nome Nome do jogo
- * @param quantidade quantidade a ser adicionada
+ * @param quantidade Quantidade de jogos
  *
  * Primeiro a função aloca memória para o estoque,
  * depois aloca memória para o nome do jogo
  * e copia o nome passado como parâmetro para o nome do jogo.
- * Também adiciona a data de a quantidade de jogos.
+ * Também adiciona a data de lançamento.
  *
- * TODO: inserir com quantidade 10
- * TODO: nao deixar inserir quando já estiver no estoque
- * imprimir erro mandando usar a função compra
+ * @return ok, erro_alocacao, formato_invalido_quantidade_negativa
  *
- * @return Estoque* Ponteiro para o estoque
- *
- */
-Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome)
+ *****************************************************/
+ReturnCode insereJogoEstoque(char *nome, int quantidade)
 {
-    // TODO: ????? if (quantitade < 1) aqn
-    //  {
-    //      printf("\033[31mA quantidade mínima deve ser 1!\033[0m]");
-    //      return estoque_antigo;
-    //  }
-    //  TODO: talvez checar se jogo já existe no estoque
+    if (quantidade < 0)
+    {
+        return formato_invalido_quantidade_negativa;
+    }
+
     Estoque *estoque = (Estoque *)malloc(sizeof(Estoque));             // aloca memória para o estoque
     estoque->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
-    strcpy(estoque->nome, nome);                                       // copia o nome para o estoque
-    estoque->quantidade = 10;                                          // incializa com 10
-    estoque->prox = estoque_antigo;                                    // o próximo é o estoque anterior
 
-    printf("\033[32mJogo inserido com sucesso! (+10 unindades)\033[0m\n");
-    return estoque;
+    if (estoque == NULL || estoque->nome == NULL) // checa se a alocação foi bem sucedida
+    {
+        return erro_alocacao;
+    }
+
+    strcpy(estoque->nome, nome);      // copia o nome para o estoque
+    estoque->quantidade = quantidade; // copia a data para o estoque
+    estoque->prox = g_estoque;        // o próximo é o estoque anterior
+
+    g_estoque = estoque;
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Imprime o estoque
  *
  * A função percorre o estoque e imprime o nome e a data de lançamento
@@ -74,14 +111,14 @@ Estoque *insereJogoEstoque(Estoque *estoque_antigo, char *nome)
  *
  * Caso 1: O estoque está vazio -> imprime que o estoque está vazio.
  * Caso 2: O estoque não está vazio -> imprime o estoque.
- */
-void imprimeEstoque(Estoque *estoque)
+ *****************************************************/
+ReturnCode imprimeEstoque(void)
 {
-    Estoque *aux = estoque;
+    Estoque *aux = g_estoque;
     if (aux == NULL)
     {
         printf("\x1b[31mO estoque esta vazio!\n\x1b[0m");
-        return;
+        return ok_vazio;
     }
 
     printf("\x1b[32m******** Imrpimindo o estoque *******\n\n\x1b[0m");
@@ -92,9 +129,10 @@ void imprimeEstoque(Estoque *estoque)
         aux = aux->prox;
     }
     printf("\x1b[32m******** Fim da impressao *******\n\n\x1b[0m");
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Libera a memória alocada pelo estoque
  *
  * A função percorre o estoque e libera a memória alocada
@@ -107,10 +145,10 @@ void imprimeEstoque(Estoque *estoque)
  * 3: o auxiliar recebe o próximo jogo. (atualiza o ponteiro auxiliar)
  *
  * @param estoque Ponteiro para o estoque
- */
-void liberaEstoque(Estoque *estoque)
+ *****************************************************/
+ReturnCode liberaEstoque(void)
 {
-    Estoque *aux = estoque;
+    Estoque *aux = g_estoque;
     while (aux != NULL)
     {
         Estoque *aux2 = aux->prox;
@@ -118,9 +156,10 @@ void liberaEstoque(Estoque *estoque)
         free(aux);
         aux = aux2;
     }
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Busca um jogo no estoque
  *
  * @param estoque Ponteiro para o estoque
@@ -133,18 +172,26 @@ void liberaEstoque(Estoque *estoque)
  *
  * Caso 1: o jogo não foi encontrado, retorna NULL.
  * Caso 2: o jogo foi encontrado, retorna o ponteiro para o jogo.
- */
-Estoque *buscaJogoEstoque(Estoque *estoque, char *nome)
+ *****************************************************/
+ReturnCode buscaJogoEstoque(char *nome, int *quantidade)
 {
-    Estoque *aux = estoque;
-    while (aux != NULL && strcmp(aux->nome, nome) != 0)
+    Estoque *aux = g_estoque;
+    while (aux != NULL && strcmp(aux->nome, nome) != 0) // strcmp depois, para nao causar segfault
     {
         aux = aux->prox;
     }
-    return aux;
+    if (aux == NULL)
+    {
+        *dia = -1;
+        *mes = -1;
+        *ano = -1;
+        return ok_jogo_nao_encontrado;
+    }
+    *quantidade = aux->quantidade;
+    return ok;
 }
 
-/**
+/****************************************************
  * @brief Remove um jogo do estoque
  *
  * @param estoque Ponteiro para o estoque
@@ -165,10 +212,10 @@ Estoque *buscaJogoEstoque(Estoque *estoque, char *nome)
  * Caso 3: o jogo foi encontrado e não é o primeiro -> remove o jogo.
  * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
  *
- */
-Estoque *removeJogoEstoque(Estoque *estoque, char *nome)
+ *****************************************************/
+ReturnCode removeJogoEstoque(char *nome)
 {
-    Estoque *aux = estoque;
+    Estoque *aux = g_estoque;
     Estoque *ant = NULL;
     while (aux != NULL && strcmp(aux->nome, nome) != 0)
     {
@@ -177,11 +224,11 @@ Estoque *removeJogoEstoque(Estoque *estoque, char *nome)
     }
     if (aux == NULL) // não encontrou o jogo
     {
-        return estoque;
+        return ok_jogo_nao_encontrado;
     }
     if (ant == NULL) // é o primeiro jogo do estoque
     {
-        estoque = aux->prox;
+        g_estoque = aux->prox;
     }
     else // não é o primeiro jogo do estoque
     {
@@ -189,76 +236,68 @@ Estoque *removeJogoEstoque(Estoque *estoque, char *nome)
     }
     free(aux->nome);
     free(aux);
-    return estoque;
+    return ok;
 }
 
-/**
- * @brief Vende um jogo do estoque
- *
- * @param estoque
- * @param nome
- * @return Estoque*
- */
-bool vendeJogoEstoque(Estoque *estoque, char *nome, int quantidade)
+ReturnCode vendeJogoEstoque(char *nome, int quantidade)
 {
-    Estoque *jogo = buscaJogoEstoque(estoque, nome);
-    if (jogo == NULL || jogo->quantidade < 1) // Ordem importa para não causar segfault
+    Estoque *aux = g_estoque;
+    while (aux != NULL && strcmp(aux->nome, nome) != 0)
     {
-        printf("Nao ha unidades disponiveis para venda!");
-        return false;
+        aux = aux->prox;
     }
-
-    jogo->quantidade -= quantidade;
-    if (quantidade == 1)
-        printf("-1 unidade de %s", jogo->nome);
-    else
-        printf("-%d unidades de %s", jogo->quantidade, jogo->nome);
-    return true;
+    if (aux == NULL) // não encontrou o jogo
+    {
+        return ok_jogo_nao_encontrado;
+    }
+    if (aux->quantidade < quantidade)
+    {
+        return ok_quantidade_insuficiente;
+    }
+    aux->quantidade -= quantidade;
+    return ok;
 }
 
-/**
- * @brief Compra unidades de um jogo para o estoque
- *
- * @param estoque
- * @param nome
- * @return Estoque*
- */
-bool compraJogoEstoque(Estoque *estoque, char *nome, int quantidade)
+ReturnCode compraJogoEstoque(char *nome, int quantidade)
 {
-    Estoque *jogo = buscaJogoEstoque(estoque, nome);
-    if (jogo == NULL)
+    Estoque *aux = g_estoque;
+    while (aux != NULL && strcmp(aux->nome, nome) != 0)
     {
-        printf("Jogo nao esta no estoque, para adicionar use a funcao inserir");
-        return false;
+        aux = aux->prox;
     }
-
-    jogo->quantidade += quantidade;
-    if (quantidade == 1)
-        printf("+1 unidade de %s", jogo->nome);
-    else
-        printf("+%d unidades de %s", jogo->quantidade, jogo->nome);
-    return true;
+    if (aux == NULL) // não encontrou o jogo
+    {
+        return ok_jogo_nao_encontrado;
+    }
+    aux->quantidade += quantidade;
+    return ok;
 }
 
-/**
- * @brief Retorna o quantidade do estoque
+/****************************************************
+ * @brief Retorna o tamanho do estoque
  *
  * @param estoque Ponteiro para o estoque
  * @return int Tamanho do estoque
  *
  * 1: cria um ponteiro auxiliar para percorrer o estoque.
- * 2: enquanto o auxiliar não for nulo, incrementa a quantidade e o auxiliar recebe o próximo jogo.
- * 3: retorna o quantidade.
+ * 2: enquanto o auxiliar não for nulo, incrementa o tamanho e o auxiliar recebe o próximo jogo.
+ * 3: retorna o tamanho.
  *
- */
-int quantidadeJogosEstoque(Estoque *estoque)
+ *****************************************************/
+ReturnCode tamanhoEstoque(int *rettamanho)
 {
-    int quantidade = 0;
-    Estoque *aux = estoque;
+    *rettamanho = 0;
+    Estoque *aux = g_estoque;
+
+    if (aux == NULL)
+    {
+        return ok_vazio;
+    }
+
     while (aux != NULL)
     {
-        quantidade += aux->quantidade;
+        *rettamanho = *rettamanho + 1;
         aux = aux->prox;
     }
-    return quantidade;
+    return ok;
 }

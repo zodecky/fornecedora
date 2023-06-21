@@ -42,6 +42,9 @@
     "sqlite3.h": "c",
     "stdbool.h": "c",
     "ARVORE.C": "cpp",
-    "string.h": "c"
-  }
+    "string.h": "c",
+    "__locale": "c",
+    "chrono": "c"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }
