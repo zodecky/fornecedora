@@ -1,43 +1,25 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -g 
-LIBS = 
+SRCS = $(wildcard src/*.c)
+OBJS = $(patsubst src/%.c, obj/%.o, $(SRCS))
+TEST_SRCS = $(wildcard test/*.c)
+TEST_OBJS = $(patsubst test/%.c, obj/%.o, $(TEST_SRCS))
 
-INCLUDE_DIR = include
-SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = bin
-LIB_DIR = lib
+release: $(filter-out obj/test.o, $(OBJS))
+	gcc -Wall -Wextra -g $(filter-out obj/test.o, $(OBJS)) -o release/bin/myprogram -lcjson
 
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-
-RELEASE_DIR = release
-RELEASE_BIN_DIR = $(RELEASE_DIR)/bin
-RELEASE_LIB_DIR = $(RELEASE_DIR)/lib
-
-TEST_DIR = test
-TEST_SRCS = $(wildcard $(TEST_DIR)/*.c)
-TEST_OBJS = $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TEST_SRCS))
-
-all: release test
-
-release: $(filter-out $(OBJ_DIR)/test.o, $(OBJS))
-	$(CC) $(CFLAGS) $(filter-out $(OBJ_DIR)/test.o, $(OBJS)) -o $(RELEASE_BIN_DIR)/myprogram $(LIBS)
-
-test: $(filter-out $(OBJ_DIR)/main.o, $(OBJS)) $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(filter-out $(OBJ_DIR)/main.o, $(OBJS)) $(TEST_OBJS) -o $(BIN_DIR)/test $(LIBS)
-	./$(BIN_DIR)/test
+test: $(filter-out obj/main.o, $(OBJS)) $(TEST_OBJS)
+	gcc -Wall -Wextra -g $(filter-out obj/main.o, $(OBJS)) $(TEST_OBJS) -o test/bin/test
+	./test/bin/test
 
 
 run: release
-	./$(RELEASE_BIN_DIR)/myprogram
+	./release/bin/myprogram
 
 
-clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(RELEASE_DIR)
+obj/%.o: src/%.c
+	gcc -Wall -Wextra -g -Iinclude -c $< -o $@ -Wreturn-stack-address
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+obj/%.o: test/%.c
+	gcc -Wall -Wextra -g -Iinclude -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
-	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+libcjson.a:
+	cd cJSON && make install

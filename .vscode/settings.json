@@ -44,7 +44,10 @@
     "ARVORE.C": "cpp",
     "string.h": "c",
     "__locale": "c",
-    "chrono": "c"
+    "chrono": "c",
+    "codes.h": "c",
+    "unistd.h": "c",
+    "fcntl.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

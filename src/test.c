@@ -9,9 +9,10 @@
  *********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include "catalogo.h"
+#include "../include/catalogo.h"
+#include "../include/estoque.h"
+#include "../include/codes.h"
 #include "munit.h"
-#include "codes.h"
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -26,7 +27,7 @@
 static MunitResult
 test_criaCatalogo(const MunitParameter params[], void *data)
 {
-  ReturnCode = criaCatalogo();
+  ReturnCode code = criaCatalogo();
 
   if (code == ok)
     return MUNIT_OK;
@@ -35,9 +36,10 @@ test_criaCatalogo(const MunitParameter params[], void *data)
 }
 
 static MunitResult
-test_insereJogo(const MunitParameter params[], void *data)
+test_insereJogo_ok(const MunitParameter params[], void *data)
 {
-  ReturnCode = insereJogoCatalogo("Jogo1", 1, 1, 1, 1, 1, 1, 1, 1, 1);
+
+  ReturnCode code = insereJogoCatalogo("filme1", 9, 12, 2003, 33.40);
 
   if (code == ok)
     return MUNIT_OK;
@@ -46,206 +48,361 @@ test_insereJogo(const MunitParameter params[], void *data)
 }
 
 static MunitResult
-test_rand(const MunitParameter params[], void *user_data)
+test_insereJogo_formato_invalido_dia_entre_1_e_31(const MunitParameter params[], void *data)
 {
-  int random_int;
-  double random_dbl;
-  munit_uint8_t data[5];
 
-  (void)params;
-  (void)user_data;
+  ReturnCode code = insereJogoCatalogo("filme2", 32, 12, 2003, 33.40);
 
-  /* One thing missing from a lot of unit testing frameworks is a
-   * random number generator.  You can't just use srand/rand because
-   * the implementation varies across different platforms, and it's
-   * important to be able to look at the seed used in a failing test
-   * to see if you can reproduce it.  Some randomness is a fantastic
-   * thing to have in your tests, I don't know why more people don't
-   * do it...
-   *
-   * µnit's PRNG is re-seeded with the same value for each iteration
-   * of each test.  The seed is retrieved from the MUNIT_SEED
-   * envirnment variable or, if none is provided, one will be
-   * (pseudo-)randomly generated. */
-
-  /* If you need an integer in a given range */
-  random_int = munit_rand_int_range(128, 4096);
-  munit_assert_int(random_int, >=, 128);
-  munit_assert_int(random_int, <=, 4096);
-
-  /* Or maybe you want a double, between 0 and 1: */
-  random_dbl = munit_rand_double();
-  munit_assert_double(random_dbl, >=, 0.0);
-  munit_assert_double(random_dbl, <=, 1.0);
-
-  /* Of course, you want to be able to reproduce bugs discovered
-   * during testing, so every time the tests are run they print the
-   * random seed used.  When you want to reproduce a result, just put
-   * that random seed in the MUNIT_SEED environment variable; it even
-   * works on different platforms.
-   *
-   * If you want this to pass, use 0xdeadbeef as the random seed and
-   * uncomment the next line of code.  Note that the PRNG is not
-   * re-seeded between iterations of the same test, so this will only
-   * work on the first iteration. */
-  /* munit_assert_uint32(munit_rand_uint32(), ==, 1306447409); */
-
-  /* You can also get blobs of random memory: */
-  munit_rand_memory(sizeof(data), data);
-
-  return MUNIT_OK;
+  if (code == formato_invalido_dia_entre_1_e_31)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
 }
 
-/* This test case shows how to accept parameters.  We'll see how to
- * specify them soon.
- *
- * By default, every possible variation of a parameterized test is
- * run, but you can specify parameters manually if you want to only
- * run specific test(s), or you can pass the --single argument to the
- * CLI to have the harness simply choose one variation at random
- * instead of running them all. */
 static MunitResult
-test_parameters(const MunitParameter params[], void *user_data)
+test_insereJogo_formato_invalido_mes_entre_1_e_12(const MunitParameter params[], void *data)
 {
-  const char *foo;
-  const char *bar;
 
-  (void)user_data;
+  ReturnCode code = insereJogoCatalogo("filme3", 9, 13, 2003, 33.40);
 
-  /* The "foo" parameter is specified as one of the following values:
-   * "one", "two", or "three". */
-  foo = munit_parameters_get(params, "foo");
-  /* Similarly, "bar" is one of "four", "five", or "six". */
-  bar = munit_parameters_get(params, "bar");
-  /* "baz" is a bit more complicated.  We don't actually specify a
-   * list of valid values, so by default NULL is passed.  However, the
-   * CLI will accept any value.  This is a good way to have a value
-   * that is usually selected randomly by the test, but can be
-   * overridden on the command line if desired. */
-  /* const char* baz = munit_parameters_get(params, "baz"); */
-
-  /* Notice that we're returning MUNIT_FAIL instead of writing an
-   * error message.  Error messages are generally preferable, since
-   * they make it easier to diagnose the issue, but this is an
-   * option.
-   *
-   * Possible values are:
-   *  - MUNIT_OK: Sucess
-   *  - MUNIT_FAIL: Failure
-   *  - MUNIT_SKIP: The test was skipped; usually this happens when a
-   *    particular feature isn't in use.  For example, if you're
-   *    writing a test which uses a Wayland-only feature, but your
-   *    application is running on X11.
-   *  - MUNIT_ERROR: The test failed, but not because of anything you
-   *    wanted to test.  For example, maybe your test downloads a
-   *    remote resource and tries to parse it, but the network was
-   *    down.
-   */
-
-  if (strcmp(foo, "one") != 0 &&
-      strcmp(foo, "two") != 0 &&
-      strcmp(foo, "three") != 0)
+  if (code == formato_invalido_mes_entre_1_e_12)
+    return MUNIT_OK;
+  else
     return MUNIT_FAIL;
+}
 
-  if (strcmp(bar, "red") != 0 &&
-      strcmp(bar, "green") != 0 &&
-      strcmp(bar, "blue") != 0)
+static MunitResult
+test_insereJogo_formato_invalido_ano_maior_que_0(const MunitParameter params[], void *data)
+{
+
+  ReturnCode code = insereJogoCatalogo("filme4", 9, 12, -2003, 33.40);
+
+  if (code == formato_invalido_ano_maior_que_0)
+    return MUNIT_OK;
+  else
     return MUNIT_FAIL;
-
-  return MUNIT_OK;
 }
 
-/* The setup function, if you provide one, for a test will be run
- * before the test, and the return value will be passed as the sole
- * parameter to the test function. */
-static void *
-test_compare_setup(const MunitParameter params[], void *user_data)
+static MunitResult
+test_insereJogo_formato_invalido_fevereiro_tem_28_dias(const MunitParameter params[], void *data)
 {
-  (void)params;
 
-  munit_assert_string_equal(user_data, "µnit");
-  return (void *)(uintptr_t)0xdeadbeef;
+  ReturnCode code = insereJogoCatalogo("filme5", 30, 2, 2003, 33.40);
+
+  if (code == formato_invalido_fevereiro_tem_28_dias)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
 }
 
-/* To clean up after a test, you can use a tear down function.  The
- * fixture argument is the value returned by the setup function
- * above. */
-static void
-test_compare_tear_down(void *fixture)
+static MunitResult
+test_insereJogo_formato_invalido_meses_4_6_9_11_nao_possuem_dia_31(const MunitParameter params[], void *data)
 {
-  munit_assert_ptr_equal(fixture, (void *)(uintptr_t)0xdeadbeef);
+
+  ReturnCode code = insereJogoCatalogo("filme6", 31, 4, 2003, 33.40);
+
+  if (code == formato_invalido_meses_4_6_9_11_nao_possuem_dia_31)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
 }
 
-static char *foo_params[] = {
-    (char *)"one", (char *)"two", (char *)"three", NULL};
+static MunitResult
+test_insereJogo_formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos(const MunitParameter params[], void *data)
+{
 
-static char *bar_params[] = {
-    (char *)"red", (char *)"green", (char *)"blue", NULL};
+  ReturnCode code = insereJogoCatalogo("filme7", 29, 2, 2003, 33.40);
 
-static MunitParameterEnum test_params[] = {
-    {(char *)"foo", foo_params},
-    {(char *)"bar", bar_params},
-    {(char *)"baz", NULL},
-    {NULL, NULL},
-};
+  if (code == formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_removeJogoCatalogo_ok(const MunitParameter params[], void *data)
+{
+  insereJogoCatalogo("filme1", 9, 12, 2003, 33.40);
+  ReturnCode code = removeJogoCatalogo("filme1");
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_removeJogoCatalogo_err_jogo_nao_encontrado(const MunitParameter params[], void *data)
+{
+  ReturnCode code = removeJogoCatalogo("filme1");
+
+  if (code == ok_jogo_nao_encontrado)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_imprimeCatalogo_ok(const MunitParameter params[], void *data)
+{
+
+  insereJogoCatalogo("filme3", 9, 12, 2003, 33.40);
+  freopen("/dev/null", "w", stdout);
+  ReturnCode code = imprimeCatalogo();
+  freopen("/dev/tty", "w", stdout);
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_imprimeCatalogo_ok_vazio(const MunitParameter params[], void *data)
+{
+
+  removeJogoCatalogo("filme1");
+  freopen("/dev/null", "w", stdout);
+  ReturnCode code = imprimeCatalogo();
+  freopen("/dev/tty", "w", stdout);
+
+  if (code == ok_vazio)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_buscaJogoCatalogo_ok(const MunitParameter params[], void *data)
+{
+  int dia, mes, ano;
+  float preco;
+  insereJogoCatalogo("filme7", 9, 12, 2003, 33.40);
+  ReturnCode code = buscaJogoCatalogo("filme7", &dia, &mes, &ano, &preco);
+
+  int temp = preco * 100;
+
+  if (code == ok && dia == 9 && mes == 12 && ano == 2003, temp == 3340)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_buscaJogoCatalogo_err_jogo_nao_encontrado(const MunitParameter params[], void *data)
+{
+  int *dia, *mes, *ano;
+  float *preco;
+
+  ReturnCode code = buscaJogoCatalogo("banana", &dia, &mes, &ano, &preco);
+
+  if (code == ok_jogo_nao_encontrado)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_tamanhoCatalogo_ok(const MunitParameter params[], void *data)
+{
+  int tamanho;
+  insereJogoCatalogo("filme8", 9, 12, 2003, 33.40);
+  ReturnCode code = tamanhoCatalogo(&tamanho);
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_tamanhoCatalogo_ok_vazio(const MunitParameter params[], void *data)
+{
+  int tamanho;
+  removeJogoCatalogo("filme8");
+  ReturnCode code = tamanhoCatalogo(&tamanho);
+
+  if (code == ok_vazio)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+// o mesmo, mas para estoque.c
+
+static MunitResult
+test_criaEstoque_ok(const MunitParameter params[], void *data)
+{
+  ReturnCode code = criaEstoque();
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_insereJogoEstoque_ok(const MunitParameter params[], void *data)
+{
+  ReturnCode code = insereJogoEstoque("filme1", 4);
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_insereJogoEstoque_err_quantidade_negativa(const MunitParameter params[], void *data)
+{
+  ReturnCode code = insereJogoEstoque("filme1", -4);
+
+  if (code == formato_invalido_quantidade_negativa)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_removeJogoEstoque_ok(const MunitParameter params[], void *data)
+{
+  insereJogoEstoque("filme1", 4);
+  ReturnCode code = removeJogoEstoque("filme1");
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_removeJogoEstoque_err_jogo_nao_encontrado(const MunitParameter params[], void *data)
+{
+  ReturnCode code = removeJogoEstoque("filme1");
+
+  if (code == ok_jogo_nao_encontrado)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_imprimeEstoque_ok(const MunitParameter params[], void *data)
+{
+
+  insereJogoEstoque("filme3", 4);
+  freopen("/dev/null", "w", stdout);
+  ReturnCode code = imprimeEstoque();
+  freopen("/dev/tty", "w", stdout);
+
+  if (code == ok)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_imprimeEstoque_ok_vazio(const MunitParameter params[], void *data)
+{
+
+  removeJogoEstoque("filme1");
+  freopen("/dev/null", "w", stdout);
+  ReturnCode code = imprimeEstoque();
+  freopen("/dev/tty", "w", stdout);
+
+  if (code == ok_vazio)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_buscaJogoEstoque_ok(const MunitParameter params[], void *data)
+{
+  int quantidade;
+  insereJogoEstoque("filme7", 4);
+  ReturnCode code = buscaJogoEstoque("filme7", &quantidade);
+
+  if (code == ok && quantidade == 4)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_buscaJogoEstoque_err_jogo_nao_encontrado(const MunitParameter params[], void *data)
+{
+  int *quantidade;
+  ReturnCode code = buscaJogoEstoque("banana", &quantidade);
+
+  if (code == ok_jogo_nao_encontrado)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_tamanhoEstoque_ok(const MunitParameter params[], void *data)
+{
+  int tamanho;
+
+  insereJogoEstoque("filme8", 4);
+  ReturnCode code = tamanhoEstoque(&tamanho);
+
+  if (code == ok && tamanho == 1)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
+
+static MunitResult
+test_tamanhoEstoque_ok_vazio(const MunitParameter params[], void *data)
+{
+  int tamanho;
+  removeJogoEstoque("filme8");
+  ReturnCode code = tamanhoEstoque(&tamanho);
+
+  if (code == ok_vazio)
+    return MUNIT_OK;
+  else
+    return MUNIT_FAIL;
+}
 
 /* Creating a test suite is pretty simple.  First, you'll need an
  * array of tests: */
 static MunitTest test_suite_tests[] = {
-    {/* The name is just a unique human-readable way to identify the
-      * test. You can use it to run a specific test if you want, but
-      * usually it's mostly decorative. */
-     (char *)"/catalogo/criaCatalogo",
-     /* You probably won't be surprised to learn that the tests are
-      * functions. */
-     test_criaCatalogo,
-     test_insereJogoCatalogo,
-     /* If you want, you can supply a function to set up a fixture.  If
-      * you supply NULL, the user_data parameter from munit_suite_main
-      * will be used directly.  If, however, you provide a callback
-      * here the user_data parameter will be passed to this callback,
-      * and the return value from this callback will be passed to the
-      * test function.
-      *
-      * For our example we don't really need a fixture, but lets
-      * provide one anyways. */
-     test_compare_setup,
-     /* If you passed a callback for the fixture setup function, you
-      * may want to pass a corresponding callback here to reverse the
-      * operation. */
-     test_compare_tear_down,
-     /* Finally, there is a bitmask for options you can pass here.  You
-      * can provide either MUNIT_TEST_OPTION_NONE or 0 here to use the
-      * defaults. */
-     MUNIT_TEST_OPTION_NONE,
-     NULL},
-    /* Usually this is written in a much more compact format; all these
-     * comments kind of ruin that, though.  Here is how you'll usually
-     * see entries written: */
-    {(char *)"/example/rand", test_rand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-    /* To tell the test runner when the array is over, just add a NULL
-     * entry at the end. */
-    {(char *)"/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params},
-    {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}};
+    {(char *)"/criaCatalogo", test_criaCatalogo, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/ok", test_insereJogo_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_dia_entre_1_e_31", test_insereJogo_formato_invalido_dia_entre_1_e_31, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_mes_entre_1_e_12", test_insereJogo_formato_invalido_mes_entre_1_e_12, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_ano_maior_que_0", test_insereJogo_formato_invalido_ano_maior_que_0, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_fevereiro_tem_28_dias", test_insereJogo_formato_invalido_fevereiro_tem_28_dias, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_m_4_6_9_11_n_pos_dia_31", test_insereJogo_formato_invalido_meses_4_6_9_11_nao_possuem_dia_31, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgCat/err_dia_29_de_fev_ano_bi", test_insereJogo_formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/remJgCat/ok", test_removeJogoCatalogo_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/remJgCat/err_jogo_nao_encontrado", test_removeJogoCatalogo_err_jogo_nao_encontrado, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/impCat/ok", test_imprimeCatalogo_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/impCat/ok_vazio", test_imprimeCatalogo_ok_vazio, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/buscaJgCat/ok", test_buscaJogoCatalogo_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/buscaJgCat/err_jogo_nao_encontrado", test_buscaJogoCatalogo_err_jogo_nao_encontrado, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/tamCat/ok", test_tamanhoCatalogo_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/tamCat/ok_vazio", test_tamanhoCatalogo_ok_vazio, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/criaEstoque", test_criaEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgEst/ok", test_insereJogoEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/insJgEst/err_quantidade_negativa", test_insereJogoEstoque_err_quantidade_negativa, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/remJgEst/ok", test_removeJogoEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/remJgEst/ok_jogo_nao_encontrado", test_removeJogoEstoque_err_jogo_nao_encontrado, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/buscaJgEst/ok", test_buscaJogoEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/buscaJgEst/ok_jogo_nao_encontrado", test_buscaJogoEstoque_err_jogo_nao_encontrado, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/tamEst/ok", test_tamanhoEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/tamEst/ok_vazio", test_tamanhoEstoque_ok_vazio, MUNIT_TEST_OPTION_NONE},
 
-/* If you wanted to have your test suite run other test suites you
- * could declare an array of them.  Of course each sub-suite can
- * contain more suites, etc. */
-/* static const MunitSuite other_suites[] = { */
-/*   { "/second", test_suite_tests, NULL, 1, MUNIT_SUITE_OPTION_NONE }, */
-/*   { NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE } */
-/* }; */
+    MUNIT_TEST_OPTION_NONE};
 
 /* Now we'll actually declare the test suite.  You could do this in
  * the main function, or on the heap, or whatever you want. */
 static const MunitSuite test_suite = {
-    /* This string will be prepended to all test names in this suite;
-     * for example, "/example/rand" will become "/µnit/example/rand".
-     * Note that, while it doesn't really matter for the top-level
-     * suite, NULL signal the end of an array of tests; you should use
-     * an empty string ("") instead. */
     (char *)"",
-    /* The first parameter is the array of test suites. */
     test_suite_tests,
     /* In addition to containing test cases, suites can contain other
      * test suites.  This isn't necessary in this example, but it can be
@@ -259,8 +416,6 @@ static const MunitSuite test_suite = {
      * cases a bit, or if you are doing performance testing and want to
      * average multiple runs.  0 is an alias for 1. */
     1,
-    /* Just like MUNIT_TEST_OPTION_NONE, you can provide
-     * MUNIT_SUITE_OPTION_NONE or 0 to use the default settings. */
     MUNIT_SUITE_OPTION_NONE};
 
 /* This is only necessary for EXIT_SUCCESS and EXIT_FAILURE, which you

@@ -14,7 +14,7 @@ typedef enum return_codes
     formato_invalido_ano_maior_que_0,
     formato_invalido_fevereiro_tem_28_dias,
     formato_invalido_meses_4_6_9_11_nao_possuem_dia_31,
-    formato_invalido_dia_28_de_fevereiro_somente_existe_em_anos_bissextos,
+    formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos,
     formato_invalido_ano_deve_possuir_quatro_digitos,
     formato_invalido_quantidade_negativa,
     ok_quantidade_insuficiente,

@@ -33,13 +33,14 @@ typedef struct data
  * @brief Um catálogo de jogos \n
  *
  * Internamente uma lista encadeada \n
- * Guarda um nome (malloc) e uma data\n
+ * Guarda um nome (malloc) uma data e um preço
  *
  *****************************************************/
 typedef struct catalogo
 {
     char *nome;
     Data data_lancamento;
+    float preco;
     struct catalogo *prox;
 } Catalogo;
 
@@ -47,7 +48,9 @@ typedef struct catalogo
  *                         GLOBAIS                          *
  ************************************************************/
 
-static Catalogo *g_catalogo; // catálogo global
+static Catalogo *g_catalogo; // catálogo global (privado ao módulo)
+typedef ReturnCode (*CatalogoFunc)(char *nome, Data data, float preco);
+// CatalogoFunc func_ptr = &insereJogoCatalogo;
 
 /************************************************************
  *                         FUNÇÕES                          *
@@ -56,12 +59,11 @@ static Catalogo *g_catalogo; // catálogo global
 /****************************************************
  * @brief Cria um novo catálogo
  *
- * A função retorna NULL, para que ao inserir um jogo
- * ele aponte para um ponteiro nulo do "tipo" catálogo.
+ * A função altera o ponteiro (interno do módulo) para NULL, para que ao inserir um jogo
+ * o próx dele aponte para um ponteiro nulo do "tipo"(null) catálogo.
  *muuint
- * @return Catalogo*
+ * @return ok
  *
- * Caso 1: retorna null
  *
  *****************************************************/
 ReturnCode criaCatalogo(void)
@@ -70,26 +72,47 @@ ReturnCode criaCatalogo(void)
     return ok;
 }
 
+ReturnCode insereJogoCat(char *nome, Data data, float preco)
+{
+    Catalogo *catalogo = (Catalogo *)malloc(sizeof(Catalogo)); // aloca memória para o catálogo
+    if (catalogo == NULL)                                      // checa se a alocação foi bem sucedida
+    {
+        return erro_alocacao;
+    }
+
+    catalogo->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
+    if (catalogo->nome == NULL)                                         // checa se a alocação foi bem sucedida
+    {
+        return erro_alocacao;
+    }
+
+    strcpy(catalogo->nome, nome);     // copia o nome para o catálogo
+    catalogo->data_lancamento = data; // copia a data para o catálogo
+    catalogo->preco = preco;          // copia o preço para o catálogo
+    catalogo->prox = g_catalogo;      // o próximo é a lista, ou seja, o elemento é inserido no início da lista
+
+    g_catalogo = catalogo;
+    return ok;
+}
+
 /****************************************************
  * @brief Insere um novo jogo no catálogo
  *
- * @param catalogo Ponteiro para o catálogo
  * @param nome Nome do jogo
  * @param data Data de lançamento do jogo
+ * @param preco Preço do jogo
  *
+ * A função chama a valida data antes de inserir.
  * Primeiro a função aloca memória para o catálogo,
  * depois aloca memória para o nome do jogo
  * e copia o nome passado como parâmetro para o nome do jogo.
  * Também adiciona a data de lançamento.
  *
- * @return Catalogo* Ponteiro para o catálogo
+ * @return ok, erro_alocacao, formato_invalido_dia_entre_1_e_31, formato_invalido_mes_entre_1_e_12, formato_invalido_ano_maior_que_0, formato_invalido_fevereiro_tem_28_dias, formato_invalido_meses_4_6_9_11_nao_possuem_dia_31, formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos
  *
  *****************************************************/
-ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
+ReturnCode valida_data(CatalogoFunc f, char *nome, Data data, float preco)
 {
-    Data data = {dia, mes, ano};
-
-    // checa formato da data
     if (data.dia < 1 || data.dia > 31)
         return formato_invalido_dia_entre_1_e_31;
 
@@ -106,7 +129,7 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
         return formato_invalido_meses_4_6_9_11_nao_possuem_dia_31;
 
     if (data.ano % 4 != 0 && data.mes == 2 && data.dia > 28)
-        return formato_invalido_dia_28_de_fevereiro_somente_existe_em_anos_bissextos;
+        return formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos;
 
     // check numero de digitos do ano
     int ck_ano = data.ano;
@@ -118,24 +141,29 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
     }
     if (digitos != 4)
     {
-
         return formato_invalido_ano_deve_possuir_quatro_digitos;
     }
+    return (*f)(nome, data, preco);
+}
 
-    Catalogo *catalogo = (Catalogo *)malloc(sizeof(Catalogo));          // aloca memória para o catálogo
-    catalogo->nome = (char *)malloc(sizeof(char) * (strlen(nome) + 1)); // +1 para o \0
-
-    if (catalogo == NULL || catalogo->nome == NULL) // checa se a alocação foi bem sucedida
-    {
-        return erro_alocacao;
-    }
-
-    strcpy(catalogo->nome, nome);     // copia o nome para o catálogo
-    catalogo->data_lancamento = data; // copia a data para o catálogo
-    catalogo->prox = g_catalogo;      // o próximo é o catalogo anterior
-
-    g_catalogo = catalogo;
-    return ok;
+/****************************************************
+ * @brief Insere um novo jogo no catálogo
+ *
+ * @param nome Nome do jogo
+ * @param dia Dia de lançamento do jogo
+ * @param mes Mês de lançamento do jogo
+ * @param ano Ano de lançamento do jogo
+ * @param preco Preço do jogo
+ *
+ * A função chama a valida data antes de inserir.
+ *
+ * @return ok, erro_alocacao, formato_invalido_dia_entre_1_e_31, formato_invalido_mes_entre_1_e_12, formato_invalido_ano_maior_que_0, formato_invalido_fevereiro_tem_28_dias, formato_invalido_meses_4_6_9_11_nao_possuem_dia_31, formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos
+ *
+ *****************************************************/
+ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano, float preco)
+{
+    Data data = {dia, mes, ano};
+    return valida_data(insereJogoCat, nome, data, preco);
 }
 
 /****************************************************
@@ -144,9 +172,8 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
  * A função percorre o catálogo e imprime o nome e a data de lançamento
  * de cada jogo.
  *
- * @note A função não retorna nada, apenas imprime.
  *
- * @param catalogo Ponteiro para o catálogo
+ * @param void sem parâmetros.
  *
  * 1: cria um ponteiro auxiliar para percorrer o catálogo.
  * 2: enquanto o auxiliar não for nulo, imprime o nome e a data de lançamento.
@@ -155,6 +182,7 @@ ReturnCode insereJogoCatalogo(char *nome, int dia, int mes, int ano)
  *
  * Caso 1: O catálogo está vazio -> imprime que o catálogo está vazio.
  * Caso 2: O catálogo não está vazio -> imprime o catálogo.
+ * @return ok, ok_vazio
  *****************************************************/
 ReturnCode imprimeCatalogo(void)
 {
@@ -165,11 +193,12 @@ ReturnCode imprimeCatalogo(void)
         return ok_vazio;
     }
 
-    printf("\x1b[32m******** Imrpimindo o catalogo *******\n\n\x1b[0m");
+    printf("\x1b[32m******** Imprimindo o catalogo *******\n\n\x1b[0m");
     while (aux != NULL)
     {
         printf("\x1b[34mNome: %s\n\x1b[0m", aux->nome);
-        printf("\x1b[34mLancamento: %d/%d/%d\n\n\x1b[0m", aux->data_lancamento.dia, aux->data_lancamento.mes, aux->data_lancamento.ano);
+        printf("\x1b[34mLancamento: %d/%d/%d\n\x1b[0m", aux->data_lancamento.dia, aux->data_lancamento.mes, aux->data_lancamento.ano);
+        printf("\x1b[34mPreco: %.2f\n\n\x1b[0m", aux->preco);
         aux = aux->prox;
     }
     printf("\x1b[32m******** Fim da impressao *******\n\n\x1b[0m");
@@ -182,13 +211,13 @@ ReturnCode imprimeCatalogo(void)
  * A função percorre o catálogo e libera a memória alocada
  * para cada jogo.
  *
- * @note A função não retorna nada, apenas libera a memória.
+ * @param catalogo Ponteiro para o catálogo
  *
  * 1: cria um ponteiro auxiliar para percorrer o catálogo.
  * 2: enquanto o auxiliar não for nulo, libera o nome e o catálogo.
  * 3: o auxiliar recebe o próximo jogo. (atualiza o ponteiro auxiliar)
  *
- * @param catalogo Ponteiro para o catálogo
+ * @return ok
  *****************************************************/
 ReturnCode liberaCatalogo(void)
 {
@@ -217,7 +246,7 @@ ReturnCode liberaCatalogo(void)
  * Caso 1: o jogo não foi encontrado, retorna NULL.
  * Caso 2: o jogo foi encontrado, retorna o ponteiro para o jogo.
  *****************************************************/
-ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano)
+ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano, float *preco)
 {
     Catalogo *aux = g_catalogo;
     while (aux != NULL && strcmp(aux->nome, nome) != 0) // strcmp depois, para nao causar segfault
@@ -229,18 +258,19 @@ ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano)
         *dia = -1;
         *mes = -1;
         *ano = -1;
+        *preco = -1.0;
         return ok_jogo_nao_encontrado;
     }
     *dia = aux->data_lancamento.dia;
     *mes = aux->data_lancamento.mes;
     *ano = aux->data_lancamento.ano;
+    *preco = aux->preco;
     return ok;
 }
 
 /****************************************************
  * @brief Remove um jogo do catálogo
  *
- * @param catalogo Ponteiro para o catálogo
  * @param nome Nome do jogo
  * @return Catalogo* Ponteiro para o catálogo
  *
