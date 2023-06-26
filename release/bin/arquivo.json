@@ -1,6 +1,6 @@
 {
-	"nome": "banana",
-	"preco": 35.5999984741211,
-	"quantidade": 11,
-	"finalizacao": 1
+	"nome": "",
+	"preco": -1,
+	"quantidade": -1,
+	"finalizacao": -1
 }
