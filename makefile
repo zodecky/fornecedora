@@ -4,7 +4,7 @@ TEST_SRCS = $(wildcard test/*.c)
 TEST_OBJS = $(patsubst test/%.c, obj/%.o, $(TEST_SRCS))
 
 release: $(filter-out obj/test.o, $(OBJS))
-	gcc -Wall -Wextra -g $(filter-out obj/test.o, $(OBJS)) -o release/bin/myprogram -lcjson
+	gcc -Wall -Wextra -g $(filter-out obj/test.o, $(OBJS)) -o release/bin/fornecedora -lcjson
 
 test: $(filter-out obj/main.o, $(OBJS)) $(TEST_OBJS)
 	gcc -Wall -Wextra -g $(filter-out obj/main.o, $(OBJS)) $(TEST_OBJS) -o test/bin/test
@@ -12,7 +12,7 @@ test: $(filter-out obj/main.o, $(OBJS)) $(TEST_OBJS)
 
 
 run: release
-	./release/bin/myprogram
+	./release/bin/fornecedora
 
 
 obj/%.o: src/%.c

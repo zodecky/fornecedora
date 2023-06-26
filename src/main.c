@@ -13,7 +13,7 @@
 #include "../include/catalogo.h"
 #include "../include/codes.h"
 
-#define PATH_JSON "./release/bin/arquivo.json"
+#define PATH_JSON "arquivo.json"
 
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
