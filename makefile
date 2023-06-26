@@ -16,8 +16,7 @@ run: release
 
 
 obj/%.o: src/%.c
-	gcc -Wall -Wextra -g -Iinclude -c $< -o $@ -Wreturn-stack-address
-
+	gcc -Wall -Wextra -g -Iinclude -c $< -o $@
 obj/%.o: test/%.c
 	gcc -Wall -Wextra -g -Iinclude -c $< -o $@
 

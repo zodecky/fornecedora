@@ -13,6 +13,8 @@
 #include "../include/catalogo.h"
 #include "../include/codes.h"
 
+#define PATH_JSON "./release/bin/arquivo.json"
+
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
@@ -23,13 +25,12 @@
 
 ReturnCode code;
 
-void leSolicitacao(char *nome)
+void leSolicitacao(char *nome, float *preco, int *quantidade, int *finalizacao)
 {
-    FILE *fp = fopen("./release/bin/arquivo.json", "r");
+    FILE *fp = fopen(PATH_JSON, "r");
     if (fp == NULL)
     {
-        perror("fopen");
-        exit(1);
+        printf("Erro ao abrir o arquivo\n");
     }
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
@@ -37,8 +38,7 @@ void leSolicitacao(char *nome)
     char *buffer = (char *)malloc(size + 1);
     if (buffer == NULL)
     {
-        perror("malloc");
-        exit(1);
+        printf("Erro ao alocar memoria\n");
     }
     fread(buffer, size, 1, fp);
     buffer[size] = '\0';
@@ -55,24 +55,28 @@ void leSolicitacao(char *nome)
         exit(1);
     }
     cJSON *name = cJSON_GetObjectItem(root, "nome");
+    cJSON *preco_json = cJSON_GetObjectItem(root, "preco");
+    cJSON *quantidade_json = cJSON_GetObjectItem(root, "quantidade");
+    cJSON *finalizacao_json = cJSON_GetObjectItem(root, "finalizacao");
     if (name == NULL)
     {
-        fprintf(stderr, "Failed to get name\n");
+        fprintf(stderr, "Falha ao pegar o nome.\n");
         cJSON_Delete(root);
-        exit(1);
     }
     strcpy(nome, name->valuestring);
+    *preco = preco_json->valuedouble;
+    *quantidade = quantidade_json->valueint;
+    *finalizacao = finalizacao_json->valueint;
     cJSON_Delete(root);
     return;
 }
 
 void darpreco(float preco)
 {
-    FILE *fp = fopen("./release/bin/arquivo.json", "r");
+    FILE *fp = fopen(PATH_JSON, "r");
     if (fp == NULL)
     {
-        perror("fopen");
-        exit(1);
+        printf("Erro ao abrir o arquivo\n");
     }
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
@@ -80,8 +84,7 @@ void darpreco(float preco)
     char *buffer = (char *)malloc(size + 1);
     if (buffer == NULL)
     {
-        perror("malloc");
-        exit(1);
+        printf("Erro ao alocar memoria\n");
     }
     fread(buffer, size, 1, fp);
     buffer[size] = '\0';
@@ -95,23 +98,13 @@ void darpreco(float preco)
         {
             fprintf(stderr, "Erro: %s\n", error_ptr);
         }
-        exit(1);
-    }
-    cJSON *nome = cJSON_GetObjectItem(root, "nome");
-    if (nome == NULL)
-    {
-        fprintf(stderr, "Falha ao pegar nome\n");
-        cJSON_Delete(root);
-        exit(1);
     }
     cJSON_ReplaceItemInObject(root, "preco", cJSON_CreateNumber(preco));
-    cJSON_ReplaceItemInObject(root, "nome", cJSON_CreateString(""));
     char *new_json_string = cJSON_Print(root);
-    fp = fopen("./release/bin/arquivo.json", "w");
+    fp = fopen(PATH_JSON, "w");
     if (fp == NULL)
     {
-        perror("fopen");
-        exit(1);
+        printf("fopen");
     }
     fputs(new_json_string, fp);
     fclose(fp);
@@ -125,23 +118,185 @@ void printnoti(char *nome)
     printf(ANSI_COLOR_YELLOW "\nNome do jogo: %s\n" ANSI_COLOR_RESET, nome);
 }
 
+void printnotifini(char *nome, float preco, int quantidade)
+{
+    printf(ANSI_COLOR_YELLOW "------------------------------------------------------------\nVoce tem uma solicitacao de finalizacao de compra!\n------------------------------------------------------------" ANSI_COLOR_RESET);
+    printf(ANSI_COLOR_YELLOW "\nNome do jogo: %s\n" ANSI_COLOR_RESET, nome);
+    printf(ANSI_COLOR_YELLOW "\nPreco do jogo: %.2f\n" ANSI_COLOR_RESET, preco);
+    printf(ANSI_COLOR_YELLOW "\nQuantidade do jogo: %d\n" ANSI_COLOR_RESET, quantidade);
+}
+
+ReturnCode inserir_jogo(char *nome)
+{
+    int dia, mes, ano;
+    float preco;
+
+    printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
+    scanf("%d %d %d", &dia, &mes, &ano);
+
+    printf(ANSI_COLOR_CYAN "Digite o preco do jogo (ex: 10.0): " ANSI_COLOR_RESET);
+    scanf("%f", &preco);
+
+    code = insereJogoCatalogo(nome, dia, mes, ano, preco);
+
+    if (code == ok)
+    {
+        code = insereJogoEstoque(nome, 10); // quantidade_negativa nunca vai acontecer
+        if (code == ok)
+        {
+            printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
+        }
+    }
+
+    else if (code == erro_alocacao)
+        printf("\033[31mErro de alocacao!\033[0m\n");
+
+    else if (code == formato_invalido_ano_deve_possuir_quatro_digitos)
+        printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
+
+    else if (code == formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos)
+        printf("\033[31mO dia 29 de fevereiro somente existe em anos bissextos\033[0m\n");
+
+    else if (code == formato_invalido_meses_4_6_9_11_nao_possuem_dia_31)
+        printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
+
+    else if (code == formato_invalido_fevereiro_tem_28_dias)
+        printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
+
+    else if (code == formato_invalido_ano_maior_que_0)
+        printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
+
+    else if (code == formato_invalido_mes_entre_1_e_12)
+        printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
+
+    else if (code == formato_invalido_dia_entre_1_e_31)
+        printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
+
+    else
+        printf("\033[31mErro desconhecido!\033[0m\n");
+
+    return code;
+}
+
+ReturnCode venda(char *nome)
+{
+    int dia, mes, ano;
+    float preco;
+
+    code = buscaJogoCatalogo(nome, &dia, &mes, &ano, &preco);
+    if (code != ok)
+    {
+        printf(ANSI_COLOR_YELLOW "O jogo nao esta no catalogo: Preferencia constatada!\n------------------------------------------------------------\nInserir jogo:\n" ANSI_COLOR_RESET);
+    }
+    while (code != ok)
+    {
+        code = inserir_jogo(nome);
+        if (code == ok)
+        {
+            code = buscaJogoCatalogo(nome, &dia, &mes, &ano, &preco);
+        }
+    }
+
+    darpreco(preco);
+    return ok;
+}
+
+ReturnCode fin_venda(char *nome, int quantidade)
+{
+inicio:
+    code = vendeJogoEstoque(nome, quantidade);
+
+    if (code == ok_quantidade_insuficiente)
+    {
+        printf(ANSI_COLOR_RED "Quantidade insuficiente no estoque!\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_GREEN "Comprando +10 jogos...\n" ANSI_COLOR_RESET);
+        code = compraJogoEstoque(nome, 10);
+        goto inicio;
+    }
+    else if (code == ok_jogo_nao_encontrado)
+    {
+        printf(ANSI_COLOR_RED "Jogo nao encontrado!\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_GREEN "Comprando +10 jogos e inserindo no estoque...\n" ANSI_COLOR_RESET);
+        insereJogoEstoque(nome, 10);
+        goto inicio;
+    }
+    else if (code == ok)
+    {
+        printf(ANSI_COLOR_GREEN "Realizando venda...\n" ANSI_COLOR_RESET);
+    }
+    else
+    {
+        printf("\033[31mErro desconhecido!\033[0m\n");
+        return code;
+    }
+
+    FILE *fp = fopen(PATH_JSON, "r");
+    if (fp == NULL)
+    {
+        printf("Erro ao abrir o arquivo\n");
+    }
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    char *buffer = (char *)malloc(size + 1);
+    if (buffer == NULL)
+    {
+        printf("Erro ao alocar memoria\n");
+    }
+    fread(buffer, size, 1, fp);
+    buffer[size] = '\0';
+    fclose(fp);
+    cJSON *root = cJSON_Parse(buffer);
+    free(buffer);
+    if (root == NULL)
+    {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            fprintf(stderr, "Erro: %s\n", error_ptr);
+        }
+    }
+    cJSON_ReplaceItemInObject(root, "finalizacao", cJSON_CreateNumber(1));
+    char *new_json_string = cJSON_Print(root);
+    fp = fopen(PATH_JSON, "w");
+    if (fp == NULL)
+    {
+        printf("fopen");
+    }
+    fputs(new_json_string, fp);
+    fclose(fp);
+    free(new_json_string);
+    cJSON_Delete(root);
+    return ok;
+}
+
 int main(void)
 {
     criaCatalogo();
     criaEstoque();
     char comando[20];
     char nome[50];
+    float preco;
+    int quantidade;
+    int finalizacao;
     int compra = 0;
+    int finalizar = 0;
 
     while (1)
     {
-        leSolicitacao(nome);
+        leSolicitacao(nome, &preco, &quantidade, &finalizacao);
 
-        if (strlen(nome))
+        if (strlen(nome) && preco < 0 && quantidade < 0 && finalizacao < 0)
         {
             printnoti(nome);
             printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nAcessar: (catalogo, estoque, recarregar, sair, " ANSI_COLOR_YELLOW "vender" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
             compra = 1;
+        }
+        else if (strlen(nome) && preco > 0 && quantidade > 0 && finalizacao < 0)
+        {
+            printnotifini(nome, preco, quantidade);
+            printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nAcessar: (catalogo, estoque, recarregar, sair, " ANSI_COLOR_YELLOW "finalizar" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
+            finalizar = 1;
         }
         else
         {
@@ -154,13 +309,19 @@ int main(void)
         {
             while (1)
             {
-                leSolicitacao(nome);
+                leSolicitacao(nome, &preco, &quantidade, &finalizacao);
 
-                if (strlen(nome))
+                if (strlen(nome) && preco < 0 && quantidade < 0 && finalizacao < 0)
                 {
                     printnoti(nome);
                     printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nCatalogo: (insere, busca, remove, imprime, tamanho, voltar, recarregar, sair, " ANSI_COLOR_YELLOW "vender" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
                     compra = 1;
+                }
+                else if (strlen(nome) && preco > 0 && quantidade > 0 && finalizacao < 0)
+                {
+                    printnotifini(nome, preco, quantidade);
+                    printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nCatalogo: (insere, busca, remove, imprime, tamanho, voltar, recarregar, sair, " ANSI_COLOR_YELLOW "finalizar" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
+                    finalizar = 1;
                 }
                 else
                 {
@@ -171,56 +332,10 @@ int main(void)
                 printf(ANSI_COLOR_CYAN "------------------------------------------------------------\n\n" ANSI_COLOR_RESET);
                 if (strcmp(comando, "insere") == 0)
                 {
-                    char nome[50];
-                    int dia, mes, ano;
-                    float preco;
-
                     printf(ANSI_COLOR_CYAN "Digite o nome do jogo: " ANSI_COLOR_RESET);
                     scanf(" %[^\n]", nome); // lê até o \n
 
-                    printf(ANSI_COLOR_CYAN "Digite a data de lancamento (DD MM AAAA): " ANSI_COLOR_RESET);
-                    scanf("%d %d %d", &dia, &mes, &ano);
-
-                    printf(ANSI_COLOR_CYAN "Digite o preco do jogo (ex: 10.0): " ANSI_COLOR_RESET);
-                    scanf("%f", &preco);
-
-                    code = insereJogoCatalogo(nome, dia, mes, ano, preco);
-
-                    if (code == ok)
-                    {
-                        code = insereJogoEstoque(nome, 10); // quantidade_negativa nunca vai acontecer
-                        if (code == ok)
-                        {
-                            printf(ANSI_COLOR_GREEN "Jogo inserido com sucesso!\n" ANSI_COLOR_RESET);
-                        }
-                    }
-
-                    else if (code == erro_alocacao)
-                        printf("\033[31mErro de alocacao!\033[0m\n");
-
-                    else if (code == formato_invalido_ano_deve_possuir_quatro_digitos)
-                        printf("\033[31mUm ano deve possuir quatro digitos!\033[0m\n");
-
-                    else if (code == formato_invalido_dia_29_de_fevereiro_somente_existe_em_anos_bissextos)
-                        printf("\033[31mO dia 29 de fevereiro somente existe em anos bissextos\033[0m\n");
-
-                    else if (code == formato_invalido_meses_4_6_9_11_nao_possuem_dia_31)
-                        printf("\033[31mOs meses 4, 6, 9 e 11 nao possuem dia 31!\033[0m\n");
-
-                    else if (code == formato_invalido_fevereiro_tem_28_dias)
-                        printf("\033[31mFevereiro tem 28 dias, exceto em anos bissextos, que tem 29\033[0m\n");
-
-                    else if (code == formato_invalido_ano_maior_que_0)
-                        printf("\033[31mUm ano deve ser maior que 0!\033[0m\n");
-
-                    else if (code == formato_invalido_mes_entre_1_e_12)
-                        printf("\033[31mUm mes deve estar entre 1 e 12!\033[0m\n");
-
-                    else if (code == formato_invalido_dia_entre_1_e_31)
-                        printf("\033[31mUm dia deve estar entre 1 e 31!\033[0m\n");
-
-                    else
-                        printf("\033[31mErro desconhecido!\033[0m\n");
+                    inserir_jogo(nome);
                 }
                 else if (strcmp(comando, "busca") == 0)
                 {
@@ -279,17 +394,36 @@ int main(void)
                 {
                     goto Final;
                 }
-                else if (compra)
+                else if (strcmp(comando, "vender") == 0)
                 {
-                    if (strcmp(comando, "vender") == 0)
+                    if (compra)
                     {
-                        int dia, mes, ano;
-                        float preco;
-
-                        buscaJogoCatalogo(nome, &dia, &mes, &ano, &preco);
-                        darpreco(preco);
-                        // COMPRA
-                        compra = 0;
+                        code = venda(nome);
+                        if (code == ok)
+                        {
+                            printf(ANSI_COLOR_YELLOW "\nPreco enviado para locadora!\n");
+                            compra = 0;
+                        }
+                    }
+                    else
+                    {
+                        printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
+                    }
+                }
+                else if (strcmp(comando, "finalizar") == 0)
+                {
+                    if (finalizar)
+                    {
+                        code = fin_venda(nome, quantidade);
+                        if (code == ok)
+                        {
+                            printf(ANSI_COLOR_YELLOW "\nVenda finalizada!\n");
+                            finalizar = 0;
+                        }
+                    }
+                    else
+                    {
+                        printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
                     }
                 }
                 else
@@ -302,13 +436,19 @@ int main(void)
         {
             while (1)
             {
-                leSolicitacao(nome);
+                leSolicitacao(nome, &preco, &quantidade, &finalizacao);
 
-                if (strlen(nome))
+                if (strlen(nome) && preco < 0 && quantidade < 0 && finalizacao < 0)
                 {
                     printnoti(nome);
                     printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nEstoque: (insere, busca, remove, imprime, tamanho, voltar, recarregar, sair, " ANSI_COLOR_YELLOW "vender" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
                     compra = 1;
+                }
+                else if (strlen(nome) && preco > 0 && quantidade > 0 && finalizacao < 0)
+                {
+                    printnotifini(nome, preco, quantidade);
+                    printf(ANSI_COLOR_CYAN "\n------------------------------------------------------------\nEstoque: (insere, busca, remove, imprime, tamanho, voltar, recarregar, sair, " ANSI_COLOR_YELLOW "finalizar" ANSI_COLOR_CYAN "): " ANSI_COLOR_RESET);
+                    finalizar = 1;
                 }
                 else
                 {
@@ -396,17 +536,36 @@ int main(void)
                 {
                     goto Final;
                 }
-                else if (compra)
+                else if (strcmp(comando, "vender") == 0)
                 {
-                    if (strcmp(comando, "vender") == 0)
+                    if (compra)
                     {
-                        int dia, mes, ano;
-                        float preco;
-
-                        buscaJogoCatalogo(nome, &dia, &mes, &ano, &preco);
-                        darpreco(preco);
-                        // COMPRA
-                        compra = 0;
+                        code = venda(nome);
+                        if (code == ok)
+                        {
+                            printf(ANSI_COLOR_YELLOW "\nPreco enviado para locadora!\n");
+                            compra = 0;
+                        }
+                    }
+                    else
+                    {
+                        printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
+                    }
+                }
+                else if (strcmp(comando, "finalizar") == 0)
+                {
+                    if (finalizar)
+                    {
+                        code = fin_venda(nome, quantidade);
+                        if (code == ok)
+                        {
+                            printf(ANSI_COLOR_YELLOW "\nVenda finalizada!\n");
+                            finalizar = 0;
+                        }
+                    }
+                    else
+                    {
+                        printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
                     }
                 }
                 else
@@ -423,17 +582,36 @@ int main(void)
         {
             break;
         }
-        else if (compra)
+        else if (strcmp(comando, "vender") == 0)
         {
-            if (strcmp(comando, "vender") == 0)
+            if (compra)
             {
-                int dia, mes, ano;
-                float preco;
-
-                buscaJogoCatalogo(nome, &dia, &mes, &ano, &preco);
-                darpreco(preco);
-                // COMPRA
-                compra = 0;
+                code = venda(nome);
+                if (code == ok)
+                {
+                    printf(ANSI_COLOR_YELLOW "\nPreco enviado para locadora!\n");
+                    compra = 0;
+                }
+            }
+            else
+            {
+                printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
+            }
+        }
+        else if (strcmp(comando, "finalizar") == 0)
+        {
+            if (finalizar)
+            {
+                code = fin_venda(nome, quantidade);
+                if (code == ok)
+                {
+                    printf(ANSI_COLOR_YELLOW "\nVenda finalizada!\n");
+                    finalizar = 0;
+                }
+            }
+            else
+            {
+                printf(ANSI_COLOR_RED "Comando invalido!\n" ANSI_COLOR_RESET);
             }
         }
         else

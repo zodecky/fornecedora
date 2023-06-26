@@ -272,7 +272,6 @@ ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano, float *pr
  * @brief Remove um jogo do catálogo
  *
  * @param nome Nome do jogo
- * @return Catalogo* Ponteiro para o catálogo
  *
  * 1: cria um ponteiro auxiliar para percorrer o catálogo.
  * 2: enquanto o auxiliar não for nulo e o nome do jogo for diferente do nome do jogo do auxiliar, o auxiliar recebe o próximo jogo.
@@ -288,6 +287,7 @@ ReturnCode buscaJogoCatalogo(char *nome, int *dia, int *mes, int *ano, float *pr
  * Caso 3: o jogo foi encontrado e não é o primeiro -> remove o jogo.
  * Caso 4: o jogo foi encontrado e é o último -> remove o último jogo.
  *
+ * @return ok, ok_jogo_nao_encontrado
  *****************************************************/
 ReturnCode removeJogoCatalogo(char *nome)
 {
@@ -318,13 +318,13 @@ ReturnCode removeJogoCatalogo(char *nome)
 /****************************************************
  * @brief Retorna o tamanho do catálogo
  *
- * @param catalogo Ponteiro para o catálogo
- * @return int Tamanho do catálogo
+ * @param rettamanho Recebe um ponteiro para o valor que vai ser alterado dentro da função
  *
  * 1: cria um ponteiro auxiliar para percorrer o catálogo.
  * 2: enquanto o auxiliar não for nulo, incrementa o tamanho e o auxiliar recebe o próximo jogo.
  * 3: retorna o tamanho.
  *
+ * @return ok, ok_vazio
  *****************************************************/
 ReturnCode tamanhoCatalogo(int *rettamanho)
 {

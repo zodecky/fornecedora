@@ -22,6 +22,11 @@
 #pragma warning(disable : 4127)
 #endif
 
+// disable warning -Wmissing-field-initializers
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 /* Tests are functions that return void, and take a single void*
  * parameter.  We'll get to what that parameter is later. */
 static MunitResult
@@ -396,6 +401,8 @@ static MunitTest test_suite_tests[] = {
     {(char *)"/buscaJgEst/ok_jogo_nao_encontrado", test_buscaJogoEstoque_err_jogo_nao_encontrado, MUNIT_TEST_OPTION_NONE},
     {(char *)"/tamEst/ok", test_tamanhoEstoque_ok, MUNIT_TEST_OPTION_NONE},
     {(char *)"/tamEst/ok_vazio", test_tamanhoEstoque_ok_vazio, MUNIT_TEST_OPTION_NONE},
+    {(char *)"/impEst/ok", test_imprimeEstoque_ok, MUNIT_TEST_OPTION_NONE},
+    {(char *)"impEst/ok_vazio", test_imprimeEstoque_ok_vazio, MUNIT_TEST_OPTION_NONE},
 
     MUNIT_TEST_OPTION_NONE};
 
